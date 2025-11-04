@@ -39,8 +39,14 @@
                                 </svg>
                             </button>
 
-                            <div class="flex-1">
-                                @yield('header')
+                            <div class="flex-1 flex items-center gap-3">
+                                <button @click.prevent="sidebarCollapsed = !sidebarCollapsed" class="text-black p-1 rounded hover:bg-gray-100 focus:outline-none focus:ring-1 focus:ring-gray-200">
+                                    <svg x-show="!sidebarCollapsed" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 12L6 6V18Z" /></svg>
+                                    <svg x-show="sidebarCollapsed" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 6L6 12L18 18V6Z" /></svg>
+                                </button>
+                                <div class="flex-1">
+                                    @yield('header')
+                                </div>
                             </div>
                         </div>
 

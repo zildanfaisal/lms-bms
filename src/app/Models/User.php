@@ -21,6 +21,8 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'is_aktif',
+        'photo',
     ];
 
     /**
@@ -44,5 +46,10 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function karyawan()
+    {
+        return $this->hasOne(Karyawan::class);
     }
 }

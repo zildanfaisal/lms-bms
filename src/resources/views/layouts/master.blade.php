@@ -13,6 +13,8 @@
     @endif
 
     @stack('head')
+    <!-- Tom Select (searchable selects) -->
+    <link href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.css" rel="stylesheet">
 </head>
 <body class="font-sans antialiased bg-gray-100">
     <div x-data="{ sidebarCollapsed: (localStorage.getItem('sidebarCollapsed') === 'true'), mobileOpen: false }"
@@ -140,6 +142,37 @@
         })();
     </script>
 
+    {{-- Tom Select init (global) --}}
+    <script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // initialize all selects with class .tom-select
+            document.querySelectorAll('select.tom-select').forEach(function (el) {
+                // avoid double initialization
+                if (el.tomselect) return;
+                new TomSelect(el, {
+                    create: false,
+                    sortField: {field: "text", direction: "asc"},
+                    maxOptions: 100,
+                });
+            });
+        });
+    </script>
+    {{-- Global delegated handler for clickable rows (tr[data-href]) --}}
+    <script>
+        // Prevent installing handler multiple times (e.g., when layout is included twice)
+        if (!window._dataHrefHandlerInstalled) {
+            window._dataHrefHandlerInstalled = true;
+            document.addEventListener('click', function(e) {
+                const row = e.target.closest && e.target.closest('tr[data-href]');
+                if (!row) return;
+                // don't navigate when clicking interactive elements inside the row
+                if (e.target.closest && (e.target.closest('a') || e.target.closest('button') || e.target.closest('form'))) return;
+                const href = row.getAttribute('data-href');
+                if (href) window.location = href;
+            });
+        }
+    </script>
     @stack('scripts')
 </body>
 </html>

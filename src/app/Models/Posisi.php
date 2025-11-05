@@ -11,4 +11,9 @@ class Posisi extends Model
     protected $fillable = [
         'nama_posisi',
     ];
+
+    public function karyawan()
+    {
+        return $this->hasMany(\App\Models\Karyawan::class, 'posisi_id');
+    }
 }

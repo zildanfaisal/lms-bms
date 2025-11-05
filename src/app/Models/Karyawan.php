@@ -12,6 +12,14 @@ class Karyawan extends Model
         'nik','user_id','direktorat_id','divisi_id','unit_id','jabatan_id','posisi_id','nama','status_karyawan','no_wa','tanggal_masuk','atasan_karyawan_id',
     ];
 
+    /**
+     * Cast attributes to proper types.
+     * Ensure tanggal_masuk is a Carbon date instance when retrieved.
+     */
+    protected $casts = [
+        'tanggal_masuk' => 'date',
+    ];
+
     public function user()
     { 
         return $this->belongsTo(User::class); 

@@ -13,38 +13,54 @@
             <div class="p-4 border-b">
                 <div class="flex justify-between items-center">
                     <div class="font-semibold">Direktorat</div>
-                    <a href="#" class="text-sm text-purple-600">Lihat Semua</a>
+                    <a href="{{ route('direktorat.create') }}" class="inline-flex items-center px-3 py-2 rounded bg-purple-600 text-white text-sm">Tambah Direktorat</a>
                 </div>
             </div>
-            <div class="p-4">
-                <div class="overflow-auto">
-                    <table class="min-w-full divide-y">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-4 py-2 text-left text-xs text-gray-500">No</th>
-                                <th class="px-4 py-2 text-left text-xs text-gray-500">Nama</th>
-                                <th class="px-4 py-2 text-left text-xs text-gray-500">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y">
-                            @foreach($direktorats as $d)
-                            <tr>
-                                <td class="px-4 py-3 text-sm text-gray-700">{{ $loop->iteration + ($direktorats->currentPage() - 1) * $direktorats->perPage() }}</td>
-                                <td class="px-4 py-3 text-sm text-gray-700">{{ $d->nama_direktorat }}</td>
-                                <td class="px-4 py-3 text-sm text-gray-700 flex gap-2">
-                                    <a href="#" class="text-purple-600">Edit</a>
-                                    <a href="#" class="text-red-600">Delete</a>
-                                </td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-                <!-- Pagination -->
-                 <div class="mt-4">
-                    {{ $direktorats->links() }}
-                </div>
+            <div class="overflow-auto">
+                <table class="min-w-full divide-y">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-4 py-2 text-left text-xs text-gray-500">No</th>
+                            <th class="px-4 py-2 text-left text-xs text-gray-500">Nama</th>
+                            <th class="px-4 py-2 text-left text-xs text-gray-500">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y">
+                        @foreach($direktorats as $d)
+                        <tr class="hover:bg-gray-50 cursor-pointer" data-href="{{ route('direktorat.show', $d->id) }}">
+                            <td class="px-4 py-3 text-sm text-gray-700">{{ $loop->iteration + ($direktorats->currentPage() - 1) * $direktorats->perPage() }}</td>
+                            <td class="px-4 py-3 text-sm text-gray-700">
+                                <a href="{{ route('direktorat.show', $d->id) }}" class="text-purple-600">{{ $d->nama_direktorat }}</a>
+                            </td>
+                            <td class="px-4 py-3 text-sm text-gray-700 flex gap-2">
+                                <x-action-button type="edit" href="{{ route('direktorat.edit', $d->id) }}" color="purple" />
+                                <x-action-button type="delete" action="{{ route('direktorat.destroy', $d->id) }}" color="red" confirm="Hapus direktorat ini?" />
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+            <!-- Pagination -->
+                <div class="mt-4">
+                {{ $direktorats->links() }}
             </div>
         </div>
     </div>
 @endsection
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('tr[data-href]').forEach(function (tr) {
+            tr.style.cursor = 'pointer';
+            tr.addEventListener('click', function (e) {
+                // don't navigate when clicking an actionable element inside row
+                if (e.target.closest('a') || e.target.closest('button') || e.target.closest('form')) return;
+                var href = tr.getAttribute('data-href');
+                if (href) window.location.href = href;
+            });
+        });
+    });
+</script>
+@endpush

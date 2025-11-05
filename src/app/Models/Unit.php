@@ -10,6 +10,7 @@ class Unit extends Model
 
     protected $fillable = [
         'nama_unit',
+        'divisi_id',
     ];
 
     public function divisi()

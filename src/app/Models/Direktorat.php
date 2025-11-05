@@ -11,4 +11,9 @@ class Direktorat extends Model
     protected $fillable = [
         'nama_direktorat',
     ];
+
+    public function divisis()
+    {
+        return $this->hasMany(Divisi::class, 'direktorat_id');
+    }
 }

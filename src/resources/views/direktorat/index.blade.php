@@ -13,7 +13,9 @@
             <div class="p-4 border-b">
                 <div class="flex justify-between items-center">
                     <div class="font-semibold">Direktorat</div>
-                    <a href="{{ route('direktorat.create') }}" class="inline-flex items-center px-3 py-2 rounded bg-purple-600 text-white text-sm">Tambah Direktorat</a>
+                    @can('create direktorat')
+                        <a href="{{ route('direktorat.create') }}" class="inline-flex items-center px-3 py-2 rounded bg-purple-600 text-white text-sm">Tambah Direktorat</a>
+                    @endcan
                 </div>
             </div>
             <div class="overflow-auto">
@@ -22,7 +24,9 @@
                         <tr>
                             <th class="px-4 py-2 text-left text-xs text-gray-500">No</th>
                             <th class="px-4 py-2 text-left text-xs text-gray-500">Nama</th>
-                            <th class="px-4 py-2 text-left text-xs text-gray-500">Aksi</th>
+                            @can('update direktorat')
+                                <th class="px-4 py-2 text-left text-xs text-gray-500">Aksi</th>
+                            @endcan
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y">
@@ -33,8 +37,12 @@
                                 <a href="{{ route('direktorat.show', $d->id) }}" class="text-purple-600">{{ $d->nama_direktorat }}</a>
                             </td>
                             <td class="px-4 py-3 text-sm text-gray-700 flex gap-2">
-                                <x-action-button type="edit" href="{{ route('direktorat.edit', $d->id) }}" color="purple" />
-                                <x-action-button type="delete" action="{{ route('direktorat.destroy', $d->id) }}" color="red" confirm="Hapus direktorat ini?" />
+                                @can('update direktorat')
+                                    <x-action-button type="edit" href="{{ route('direktorat.edit', $d->id) }}" color="purple" />
+                                @endcan
+                                @can('delete direktorat')
+                                    <x-action-button type="delete" action="{{ route('direktorat.destroy', $d->id) }}" color="red" confirm="Hapus direktorat ini?" />
+                                @endcan
                             </td>
                         </tr>
                         @endforeach

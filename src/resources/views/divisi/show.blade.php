@@ -19,9 +19,11 @@
                     <div class="text-right">
                         <div class="text-sm text-gray-500">Jumlah Unit</div>
                         <div class="text-lg font-semibold">{{ $countUnits }}</div>
+                        @can('create unit')
                         <div class="mt-2">
                             <a href="{{ route('unit.create', ['divisi_id' => $divisi->id]) }}" class="inline-flex items-center px-3 py-2 rounded bg-green-600 text-white text-sm">Tambah Unit</a>
                         </div>
+                        @endcan
                     </div>
                 </div>
             </div>
@@ -38,12 +40,21 @@
                         </thead>
                         <tbody class="bg-white divide-y">
                             @foreach($units as $unit)
+                                @can('update unit')
                                 <tr class="hover:bg-gray-50" data-href="{{ route('unit.edit', $unit->id) }}">
                                     <td class="px-4 py-3 text-sm text-gray-700">{{ $loop->iteration + ($units->currentPage() - 1) * $units->perPage() }}</td>
                                     <td class="px-4 py-3 text-sm text-gray-700">
                                         <a href="{{ route('unit.edit', $unit->id) }}" class="text-purple-600" onclick="event.stopPropagation();">{{ $unit->nama_unit }}</a>
                                     </td>
                                 </tr>
+                                @else
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-4 py-3 text-sm text-gray-700">{{ $loop->iteration + ($units->currentPage() - 1) * $units->perPage() }}</td>
+                                    <td class="px-4 py-3 text-sm text-gray-700">
+                                        {{ $unit->nama_unit }}
+                                    </td>
+                                </tr>
+                                @endcan
                             @endforeach
                         </tbody>
                     </table>

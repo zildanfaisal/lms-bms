@@ -22,6 +22,7 @@ class DatabaseSeeder extends Seeder
             UnitSeeder::class,
             JabatanSeeder::class,
             PosisiSeeder::class,
+            RolesAndPermissionsSeeder::class,
         ]);
     }
 }

@@ -7,7 +7,7 @@
 @endsection
 
 @section('content')
-    <div class="space-y-6">
+    <div id="page" data-can-edit="{{ auth()->user()->can('update divisi') ? 1 : 0 }}" data-can-delete="{{ auth()->user()->can('delete divisi') ? 1 : 0 }}" class="space-y-6">
         {{-- Table --}}
         <div class="bg-white rounded-xl shadow overflow-hidden">
             <div class="p-4 border-b">
@@ -16,7 +16,9 @@
                     <div class="flex items-center gap-3">
                         <input id="divisi-search" type="text" placeholder="Cari divisi atau direktorat..." value="{{ request('q', '') }}" class="rounded border-gray-200 px-3 py-2 text-sm">
                         <x-action-button type="reset" id="divisi-reset" class="hidden inline-flex items-center px-3 py-2 rounded bg-red-100 text-sm text-red-600" />
-                        <a href="{{ route('divisi.create') }}" class="inline-flex items-center px-3 py-2 rounded bg-purple-600 text-white text-sm">Tambah Divisi</a>
+                        @can('create divisi')
+                            <a href="{{ route('divisi.create') }}" class="inline-flex items-center px-3 py-2 rounded bg-purple-600 text-white text-sm">Tambah Divisi</a>
+                        @endcan
                     </div>
                 </div>
             </div>
@@ -26,7 +28,9 @@
                         <tr>
                             <th class="px-4 py-2 text-left text-xs text-gray-500">No</th>
                             <th class="px-4 py-2 text-left text-xs text-gray-500">Nama</th>
+                            @can('update divisi')
                             <th class="px-4 py-2 text-left text-xs text-gray-500">Aksi</th>
+                            @endcan
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y">
@@ -38,8 +42,12 @@
                                 <div class="text-xs text-gray-400">{{ $d->direktorat?->nama_direktorat }}</div>
                             </td>
                             <td class="px-4 py-3 text-sm text-gray-700 flex gap-2">
-                                <x-action-button type="edit" href="{{ route('divisi.edit', $d->id) }}" color="purple" />
-                                <x-action-button type="delete" action="{{ route('divisi.destroy', $d->id) }}" color="red" confirm="Hapus divisi ini?" />
+                                @can('update divisi')
+                                    <x-action-button type="edit" href="{{ route('divisi.edit', $d->id) }}" color="purple" />
+                                @endcan
+                                @can('delete divisi')
+                                    <x-action-button type="delete" action="{{ route('divisi.destroy', $d->id) }}" color="red" confirm="Hapus divisi ini?" />
+                                @endcan
                             </td>
                         </tr>
                         @endforeach
@@ -54,10 +62,13 @@
     </div>
 @endsection
 
-@push('scripts')
+    @push('scripts')
     @include('components.instant-search-scripts')
     <script>
     (function(){
+        const page = document.getElementById('page');
+        const CAN_EDIT = page?.dataset?.canEdit === '1';
+        const CAN_DELETE = page?.dataset?.canDelete === '1';
         const input = document.getElementById('divisi-search');
         const resetBtn = document.getElementById('divisi-reset');
         const tbody = document.querySelector('table tbody');
@@ -77,8 +88,8 @@
                             <div class="text-xs text-gray-400">${IS.escape(item.nama_direktorat || '')}</div>\
                         </td>\
                         <td class="px-4 py-3 text-sm text-gray-700 flex gap-2">\
-                            ${IS.renderEdit(`/divisi/${item.id}/edit`, 'text-purple-600')}\
-                            ${IS.renderDelete(`/divisi/${item.id}`, 'Hapus divisi ini?', 'text-red-600')}\
+                            ${CAN_EDIT ? IS.renderEdit(`/divisi/${item.id}/edit`, 'text-purple-600') : ''}\
+                            ${CAN_DELETE ? IS.renderDelete(`/divisi/${item.id}`, 'Hapus divisi ini?', 'text-red-600') : ''}\
                         </td>\
                     </tr>`).join('');
                 if(pagination) pagination.style.display = 'none';

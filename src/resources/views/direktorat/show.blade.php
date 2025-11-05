@@ -19,9 +19,11 @@
                     <div class="text-right">
                         <div class="text-sm text-gray-500">Jumlah Divisi</div>
                         <div class="text-lg font-semibold">{{ $countDivisi }}</div>
+                        @can('create divisi')
                         <div class="mt-2">
                             <a href="{{ route('divisi.create', ['direktorat_id' => $direktorat->id]) }}" class="inline-flex items-center px-3 py-2 rounded bg-green-600 text-white text-sm">Tambah Divisi</a>
                         </div>
+                        @endcan
                     </div>
                 </div>
             </div>

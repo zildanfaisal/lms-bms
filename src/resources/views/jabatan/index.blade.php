@@ -12,7 +12,9 @@
             <div class="p-4 border-b">
                 <div class="flex justify-between items-center">
                     <div class="font-semibold">Jabatan</div>
-                    <a href="{{ route('jabatan.create') }}" class="inline-flex items-center px-3 py-2 rounded bg-purple-600 text-white text-sm">Tambah Jabatan</a>
+                    @can('create jabatan')
+                        <a href="{{ route('jabatan.create') }}" class="inline-flex items-center px-3 py-2 rounded bg-purple-600 text-white text-sm">Tambah Jabatan</a>
+                    @endcan
                 </div>
             </div>
             <div class="overflow-auto">
@@ -23,23 +25,38 @@
                             <th class="px-4 py-2 text-left text-xs text-gray-500">Kode</th>
                             <th class="px-4 py-2 text-left text-xs text-gray-500">Nama</th>
                             <th class="px-4 py-2 text-left text-xs text-gray-500">Level</th>
+                            @can('update jabatan')
                             <th class="px-4 py-2 text-left text-xs text-gray-500">Aksi</th>
+                            @endcan
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y">
                         @foreach($jabatans as $d)
-                        <tr class="hover:bg-gray-50" data-href="{{ route('jabatan.edit', $d->id) }}">
-                            <td class="px-4 py-3 text-sm text-gray-700">{{ $loop->iteration + ($jabatans->currentPage() - 1) * $jabatans->perPage() }}</td>
-                            <td class="px-4 py-3 text-sm text-gray-700">{{ $d->kode_jabatan }}</td>
-                            <td class="px-4 py-3 text-sm text-gray-700">
-                                <a href="{{ route('jabatan.edit', $d->id) }}" class="text-purple-600" onclick="event.stopPropagation();">{{ $d->nama_jabatan }}</a>
-                            </td>
-                            <td class="px-4 py-3 text-sm text-gray-700">{{ $d->level }}</td>
-                            <td class="px-4 py-3 text-sm text-gray-700 flex gap-2">
-                                <x-action-button type="edit" href="{{ route('jabatan.edit', $d->id) }}" color="purple" />
-                                <x-action-button type="delete" action="{{ route('jabatan.destroy', $d->id) }}" color="red" confirm="Hapus jabatan ini?" />
-                            </td>
-                        </tr>
+                            @can('update jabatan')
+                                <tr class="hover:bg-gray-50" data-href="{{ route('jabatan.edit', $d->id) }}">
+                                    <td class="px-4 py-3 text-sm text-gray-700">{{ $loop->iteration + ($jabatans->currentPage() - 1) * $jabatans->perPage() }}</td>
+                                    <td class="px-4 py-3 text-sm text-gray-700">{{ $d->kode_jabatan }}</td>
+                                    <td class="px-4 py-3 text-sm text-gray-700">
+                                        <a href="{{ route('jabatan.edit', $d->id) }}" class="text-purple-600" onclick="event.stopPropagation();">{{ $d->nama_jabatan }}</a>
+                                    </td>
+                                    <td class="px-4 py-3 text-sm text-gray-700">{{ $d->level }}</td>
+                                    <td class="px-4 py-3 text-sm text-gray-700 flex gap-2">
+                                        @can('update jabatan')
+                                            <x-action-button type="edit" href="{{ route('jabatan.edit', $d->id) }}" color="purple" />
+                                        @endcan
+                                        @can('delete jabatan')
+                                            <x-action-button type="delete" action="{{ route('jabatan.destroy', $d->id) }}" color="red" confirm="Hapus jabatan ini?" />
+                                        @endcan
+                                    </td>
+                                </tr>
+                            @else
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-4 py-3 text-sm text-gray-700">{{ $loop->iteration + ($jabatans->currentPage() - 1) * $jabatans->perPage() }}</td>
+                                    <td class="px-4 py-3 text-sm text-gray-700">{{ $d->kode_jabatan }}</td>
+                                    <td class="px-4 py-3 text-sm text-gray-700">{{ $d->nama_jabatan }}</td>
+                                    <td class="px-4 py-3 text-sm text-gray-700">{{ $d->level }}</td>
+                                </tr>
+                            @endcan
                         @endforeach
                     </tbody>
                 </table>

@@ -7,7 +7,7 @@
 @endsection
 
 @section('content')
-    <div class="space-y-6">
+    <div id="page" data-can-edit="{{ auth()->user()->can('update posisi') ? 1 : 0 }}" data-can-delete="{{ auth()->user()->can('delete posisi') ? 1 : 0 }}" class="space-y-6">
         <div class="bg-white rounded-xl shadow overflow-hidden">
             <div class="p-4 border-b">
                 <div class="flex justify-between items-center">
@@ -15,7 +15,9 @@
                     <div class="flex items-center gap-3">
                         <input id="posisi-search" type="text" placeholder="Cari posisi..." value="{{ request('q', '') }}" class="rounded border-gray-200 px-3 py-2 text-sm">
                         <x-action-button type="reset" id="posisi-reset" class="hidden inline-flex items-center px-3 py-2 rounded bg-red-100 text-sm text-red-600" />
-                        <a href="{{ route('posisi.create') }}" class="inline-flex items-center px-3 py-2 rounded bg-purple-600 text-white text-sm">Tambah Posisi</a>
+                        @can('create posisi')
+                            <a href="{{ route('posisi.create') }}" class="inline-flex items-center px-3 py-2 rounded bg-purple-600 text-white text-sm">Tambah Posisi</a>
+                        @endcan
                     </div>
                 </div>
             </div>
@@ -25,21 +27,34 @@
                         <tr>
                             <th class="px-4 py-2 text-left text-xs text-gray-500">No</th>
                             <th class="px-4 py-2 text-left text-xs text-gray-500">Nama Posisi</th>
+                            @can('update posisi')
                             <th class="px-4 py-2 text-left text-xs text-gray-500">Aksi</th>
+                            @endcan
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y">
                         @foreach($posisis as $d)
-                        <tr class="hover:bg-gray-50" data-href="{{ route('posisi.edit', $d->id) }}">
-                            <td class="px-4 py-3 text-sm text-gray-700">{{ $loop->iteration + ($posisis->currentPage() - 1) * $posisis->perPage() }}</td>
-                            <td class="px-4 py-3 text-sm text-gray-700">
-                                <a href="{{ route('posisi.edit', $d->id) }}" class="text-purple-600" onclick="event.stopPropagation();">{{ $d->nama_posisi }}</a>
-                            </td>
-                            <td class="px-4 py-3 text-sm text-gray-700 flex gap-2">
-                                <x-action-button type="edit" href="{{ route('posisi.edit', $d->id) }}" color="purple" />
-                                <x-action-button type="delete" action="{{ route('posisi.destroy', $d->id) }}" color="red" confirm="Hapus posisi ini?" />
-                            </td>
-                        </tr>
+                            @can('update posisi')
+                            <tr class="hover:bg-gray-50" data-href="{{ route('posisi.edit', $d->id) }}">
+                                <td class="px-4 py-3 text-sm text-gray-700">{{ $loop->iteration + ($posisis->currentPage() - 1) * $posisis->perPage() }}</td>
+                                <td class="px-4 py-3 text-sm text-gray-700">
+                                    <a href="{{ route('posisi.edit', $d->id) }}" class="text-purple-600" onclick="event.stopPropagation();">{{ $d->nama_posisi }}</a>
+                                </td>
+                                <td class="px-4 py-3 text-sm text-gray-700 flex gap-2">
+                                    @can('update posisi')
+                                        <x-action-button type="edit" href="{{ route('posisi.edit', $d->id) }}" color="purple" />
+                                    @endcan
+                                    @can('delete posisi')
+                                        <x-action-button type="delete" action="{{ route('posisi.destroy', $d->id) }}" color="red" confirm="Hapus posisi ini?" />
+                                    @endcan
+                                </td>
+                            </tr>
+                            @else
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-4 py-3 text-sm text-gray-700">{{ $loop->iteration + ($posisis->currentPage() - 1) * $posisis->perPage() }}</td>
+                                <td class="px-4 py-3 text-sm text-gray-700">{{ $d->nama_posisi }}</td>
+                            </tr>
+                            @endcan
                         @endforeach
                     </tbody>
                 </table>
@@ -53,10 +68,13 @@
     </div>
 @endsection
 
-@push('scripts')
+    @push('scripts')
     @include('components.instant-search-scripts')
     <script>
     (function(){
+        const page = document.getElementById('page');
+        const CAN_EDIT = page?.dataset?.canEdit === '1';
+        const CAN_DELETE = page?.dataset?.canDelete === '1';
         const input = document.getElementById('posisi-search');
         const resetBtn = document.getElementById('posisi-reset');
         const tbody = document.querySelector('table tbody');
@@ -74,8 +92,8 @@
                             <a href="/posisi/${item.id}" class="text-purple-600" onclick="event.stopPropagation();">${IS.escape(item.nama_posisi)}</a>\
                         </td>\
                         <td class="px-4 py-3 text-sm text-gray-700 flex gap-2">\
-                            ${IS.renderEdit(`/posisi/${item.id}/edit`, 'text-purple-600')}\
-                            ${IS.renderDelete(`/posisi/${item.id}`, 'Hapus posisi ini?', 'text-red-600')}\
+                            ${CAN_EDIT ? IS.renderEdit(`/posisi/${item.id}/edit`, 'text-purple-600') : ''}\
+                            ${CAN_DELETE ? IS.renderDelete(`/posisi/${item.id}`, 'Hapus posisi ini?', 'text-red-600') : ''}\
                         </td>\
                     </tr>`).join('');
                 if(pagination) pagination.style.display = 'none';

@@ -4,7 +4,9 @@
     window.IS = window.IS || {};
     const ns = window.IS;
 
+    // Token as string and as ready-to-insert hidden input markup
     ns._csrf = '{{ csrf_token() }}';
+    ns._csrfInput = '<input type="hidden" name="_token" value="{{ csrf_token() }}">';
 
     ns.debounce = function(fn, wait=300){ let t; return function(){ const args=arguments; clearTimeout(t); t=setTimeout(()=>fn.apply(this,args), wait); }; };
 

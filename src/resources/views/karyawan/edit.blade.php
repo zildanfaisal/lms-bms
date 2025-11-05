@@ -120,6 +120,19 @@ document.addEventListener('DOMContentLoaded', function () {
                     <p class="text-xs text-gray-500 mt-1">Menonaktifkan akun akan mencegah login pengguna.</p>
                 </div>
 
+                @if(isset($roles) && auth()->user()->can('manage roles & permissions'))
+                <div>
+                    <label class="block text-sm text-gray-700">Role Pengguna</label>
+                    @php $currentRoles = optional($karyawan->user)->roles?->pluck('name')->toArray() ?? []; @endphp
+                    <select name="roles[]" class="mt-1 block w-full rounded border-gray-200 tom-select" multiple>
+                        @foreach($roles as $r)
+                            <option value="{{ $r->name }}" {{ in_array($r->name, $currentRoles) ? 'selected' : '' }}>{{ $r->name }}</option>
+                        @endforeach
+                    </select>
+                    <p class="text-xs text-gray-500 mt-1">Pilih satu atau lebih role untuk akun ini.</p>
+                </div>
+                @endif
+
                 <div class="grid grid-cols-3 gap-4">
                     <div>
                         <label class="block text-sm text-gray-700">Direktorat</label>

@@ -10,6 +10,7 @@ use App\Models\Divisi;
 use App\Models\Unit;
 use App\Models\Jabatan;
 use App\Models\Posisi;
+use Spatie\Permission\Models\Role;
 
 class KaryawanController extends Controller
 {
@@ -98,6 +99,15 @@ class KaryawanController extends Controller
             'is_aktif' => 1,
         ]);
 
+        // Assign default role 'User' if exists
+        try {
+            if ($role = Role::where('name','User')->first()) {
+                $user->assignRole($role);
+            }
+        } catch (\Throwable $e) {
+            // ignore if roles not ready
+        }
+
         $data['user_id'] = $user->id;
 
         Karyawan::create($data);
@@ -113,7 +123,10 @@ class KaryawanController extends Controller
         $jabatans = Jabatan::orderBy('nama_jabatan')->get();
         $posisis = Posisi::orderBy('nama_posisi')->get();
 
-        return view('karyawan.edit', compact('karyawan','direktorats','divisis','units','jabatans','posisis'));
+    // roles for assignment (optional): only for admins managing users
+    $roles = Role::orderBy('name')->get();
+
+    return view('karyawan.edit', compact('karyawan','direktorats','divisis','units','jabatans','posisis','roles'));
     }
 
     public function update(Request $request, Karyawan $karyawan)
@@ -131,6 +144,8 @@ class KaryawanController extends Controller
             'is_aktif' => ['nullable','in:0,1'],
             'no_wa' => ['nullable','string','max:30'],
             'tanggal_masuk' => ['nullable','date'],
+            'roles' => ['nullable','array'],
+            'roles.*' => ['string'],
         ]);
 
         // update related user name/email
@@ -146,6 +161,15 @@ class KaryawanController extends Controller
             }
 
             $karyawan->user->update($userData);
+
+            // Sync roles if provided and current user has permission
+            if ($request->filled('roles')) {
+                try {
+                    $karyawan->user->syncRoles($request->input('roles'));
+                } catch (\Throwable $e) {
+                    // ignore if roles not ready / unauthorized
+                }
+            }
         }
 
         // update karyawan record (user_id remains unchanged)

@@ -30,5 +30,12 @@ class AppServiceProvider extends ServiceProvider
                 // ignore if roles table not ready (during first migration)
             }
         });
+
+        // Register explicit policy for LearningLog
+        try {
+            Gate::policy(\App\Models\LearningLog::class, \App\Policies\LearningLogPolicy::class);
+        } catch (\Throwable $e) {
+            // During early bootstrap before classes exist
+        }
     }
 }

@@ -12,7 +12,8 @@ class RolesAndPermissionsSeeder extends Seeder
     {
         // Define entities and CRUD permissions
         $entities = [
-            'direktorat', 'divisi', 'unit', 'jabatan', 'posisi', 'karyawan', 'user', 'role', 'permission'
+            'direktorat', 'divisi', 'unit', 'jabatan', 'posisi', 'karyawan', 'user', 'role', 'permission',
+            'learning platform', 'learning target', 'learning log'
         ];
 
         $actions = ['view any', 'view', 'create', 'update', 'delete'];
@@ -24,6 +25,16 @@ class RolesAndPermissionsSeeder extends Seeder
                 $allPermissions[] = $name;
                 Permission::firstOrCreate(['name' => $name, 'guard_name' => 'web']);
             }
+        }
+
+        // Additional actions for learning logs
+        foreach (['submit learning log','approve learning log','reject learning log'] as $name) {
+            Permission::firstOrCreate(['name' => $name, 'guard_name' => 'web']);
+        }
+
+        // Reporting permissions
+        foreach (['view learning reports company','view learning reports team'] as $name) {
+            Permission::firstOrCreate(['name' => $name, 'guard_name' => 'web']);
         }
 
         // Additional high-level permission to access role/permission settings
@@ -38,7 +49,7 @@ class RolesAndPermissionsSeeder extends Seeder
         // Super Admin: assign all known permissions + manage settings
         $super->syncPermissions(Permission::all());
 
-        // Admin (HR): can view/create/update on master data + karyawan, but not delete roles/permissions
+        // Admin (Supervisor/Manager): can manage team approvals, view team reports
         $adminPerms = [];
         foreach (['direktorat','divisi','unit','jabatan','posisi','karyawan'] as $e) {
             foreach (['view any','view','create','update'] as $a) {
@@ -47,15 +58,23 @@ class RolesAndPermissionsSeeder extends Seeder
             // allow delete only for non-critical (optional)
             // $adminPerms[] = 'delete '.$e;
         }
+        // Learning features for Admins
+        foreach (['view any learning log','view learning log','approve learning log','reject learning log'] as $p) {
+            $adminPerms[] = $p;
+        }
+        $adminPerms[] = 'view learning reports team';
         foreach ($adminPerms as $p) {
             if ($perm = Permission::where('name',$p)->first()) {
                 $admin->givePermissionTo($perm);
             }
         }
 
-        // User: basic view self-related; as a default keep minimal
-        // You can expand later per business rules
-        foreach (['view any karyawan','view karyawan'] as $p) {
+        // User: can create/submit own learning logs and view platforms
+        foreach ([
+            'view any karyawan','view karyawan',
+            'view any learning platform','view learning platform',
+            'create learning log','view learning log','update learning log','submit learning log',
+        ] as $p) {
             if ($perm = Permission::where('name',$p)->first()) {
                 $user->givePermissionTo($perm);
             }
@@ -63,5 +82,7 @@ class RolesAndPermissionsSeeder extends Seeder
 
         // Ensure manage settings permission belongs to Super Admin by default
         $super->givePermissionTo($manageSettings);
+
+        // HR (Super Admin) gets company-wide learning report access by syncPermissions above
     }
 }

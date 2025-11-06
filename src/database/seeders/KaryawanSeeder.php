@@ -11,6 +11,7 @@ use App\Models\Jabatan;
 use App\Models\Posisi;
 use App\Models\Karyawan;
 use App\Models\User;
+use Illuminate\Support\Str;
 
 class KaryawanSeeder extends Seeder
 {
@@ -75,7 +76,7 @@ class KaryawanSeeder extends Seeder
             // assign a jabatan (rotate through existing jabatans)
             $jabatan = $jabatans->count() ? $jabatans->get(($counter - 1) % $jabatans->count()) : $jabatanDefault;
 
-            Karyawan::updateOrCreate(
+            $k = Karyawan::updateOrCreate(
                 ['user_id' => $user->id],
                 [
                     'nik' => $nik,
@@ -91,6 +92,11 @@ class KaryawanSeeder extends Seeder
                     'tanggal_masuk' => now()->subYear()->toDateString(),
                 ]
             );
+
+            // Assign role based on jabatan: level 1 or name contains staff/spesialis => User, else Admin
+            $roleName = $this->roleForJabatan($jabatan ?? $jabatanDefault);
+            // For seeded users we can safely sync to ensure deterministic mapping
+            $user->syncRoles([$roleName]);
 
             $counter++;
         }
@@ -112,7 +118,7 @@ class KaryawanSeeder extends Seeder
                     $nik = 'KAR'.str_pad($counter, 4, '0', STR_PAD_LEFT);
                 }
 
-                Karyawan::updateOrCreate(
+                $k2 = Karyawan::updateOrCreate(
                     ['user_id' => $user->id],
                     [
                         'nik' => $nik,
@@ -129,8 +135,20 @@ class KaryawanSeeder extends Seeder
                     ]
                 );
 
+                $roleName = $this->roleForJabatan($jab);
+                $user->syncRoles([$roleName]);
+
                 $counter++;
             }
         }
+    }
+
+    protected function roleForJabatan($jabatan): string
+    {
+        if (!$jabatan) return 'User';
+        $name = Str::lower($jabatan->nama_jabatan ?? '');
+        $level = (int) ($jabatan->level ?? 0);
+        $isStaff = $level === 1 || str_contains($name, 'staff') || str_contains($name, 'spesialis') || str_contains($name, 'specialist');
+        return $isStaff ? 'User' : 'Admin';
     }
 }

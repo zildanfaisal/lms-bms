@@ -9,25 +9,42 @@
 @section('content')
     <div class="space-y-6">
         {{-- Top info bar like screenshot --}}
-        <div class="bg-white rounded-xl p-5 shadow-md flex items-center gap-4">
-            <div class="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center">
-                <svg class="w-6 h-6 text-indigo-600" fill="currentColor" viewBox="0 0 20 20"><path d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2h-1V3a1 1 0 00-1-1H6z"></path><path d="M3 11h14v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5z"></path></svg>
+        <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-4">
+            <div class="bg-white rounded-xl p-5 shadow-md flex items-center gap-4 md:col-span-2">
+                <div class="w-16 h-16 rounded-full bg-indigo-100 flex items-center justify-center">
+                    <span class="text-indigo-700 font-semibold text-lg">{{ $profileInitials }}</span>
+                </div>
+                <div class="min-w-0">
+                    <div class="text-lg font-semibold text-gray-800 truncate">{{ $profileName }}</div>
+                    <div class="mt-1 grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-1 text-sm text-gray-600">
+                        <div><span class="text-gray-400">Direktorat:</span> {{ $profileDirektorat }}</div>
+                        <div><span class="text-gray-400">Jabatan:</span> {{ $profileJabatan }}</div>
+                        <div><span class="text-gray-400">Divisi:</span> {{ $profileDivisi }}</div>
+                        <div><span class="text-gray-400">Posisi:</span> {{ $profilePosisi }}</div>
+                        <div><span class="text-gray-400">Unit:</span> {{ $profileUnit }}</div>
+                    </div>
+                </div>
             </div>
-            <div>
-                <div class="text-sm text-gray-500">Title 1</div>
-                <div class="text-lg font-semibold text-indigo-600">Content 1</div>
+            <div class="bg-white rounded-xl p-5 shadow-md flex items-center gap-4 md:col-span-1">
+                <div class="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center">
+                    <svg class="w-6 h-6 text-indigo-600" fill="currentColor" viewBox="0 0 20 20"><path d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2h-1V3a1 1 0 00-1-1H6z"></path><path d="M3 11h14v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5z"></path></svg>
+                </div>
+                <div>
+                    <div class="text-sm text-gray-500">Periode Saat Ini</div>
+                    <div class="text-lg font-semibold text-indigo-600">{{ $learningPeriod->name ?? '-' }}</div>
+                </div>
             </div>
         </div>
 
         {{-- Stat cards grid --}}
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <div class="bg-white rounded-xl p-5 shadow-md flex items-center gap-4">
                 <div class="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center">
                     <svg class="w-6 h-6 text-indigo-600" fill="currentColor" viewBox="0 0 20 20"><path d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2h-1V3a1 1 0 00-1-1H6z"></path><path d="M3 11h14v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5z"></path></svg>
                 </div>
                 <div>
-                    <div class="text-sm text-gray-500">Title 2</div>
-                    <div class="text-lg font-semibold text-indigo-600">Content 2</div>
+                    <div class="text-sm text-gray-500">Target Belajar (menit)</div>
+                    <div class="text-lg font-semibold text-indigo-600">{{ $learningTargetMinutes ?? '-' }}</div>
                 </div>
             </div>
 
@@ -36,8 +53,8 @@
                     <svg class="w-6 h-6 text-yellow-600" fill="currentColor" viewBox="0 0 20 20"><path d="M9 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2h-1V3a1 1 0 00-1-1H9z"></path><path d="M3 11h14v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5z"></path></svg>
                 </div>
                 <div>
-                    <div class="text-sm text-gray-500">Title 3</div>
-                    <div class="text-lg font-semibold text-yellow-600">Content 3</div>
+                    <div class="text-sm text-gray-500">Approved Minutes</div>
+                    <div class="text-lg font-semibold text-yellow-600">{{ $learningApprovedMinutes ?? 0 }}</div>
                 </div>
             </div>
 
@@ -46,18 +63,13 @@
                     <svg class="w-6 h-6 text-green-600" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2h-1V3a1 1 0 00-1-1H10z"></path><path d="M3 11h14v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5z"></path></svg>
                 </div>
                 <div>
-                    <div class="text-sm text-gray-500">Title 4</div>
-                    <div class="text-lg font-semibold text-green-600">Content 4</div>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-xl p-5 shadow-md flex items-center gap-4">
-                <div class="w-12 h-12 rounded-full bg-pink-100 flex items-center justify-center">
-                    <svg class="w-6 h-6 text-pink-600" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2h-1V3a1 1 0 00-1-1H10z"></path><path d="M3 11h14v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5z"></path></svg>
-                </div>
-                <div>
-                    <div class="text-sm text-gray-500">Title 5</div>
-                    <div class="text-lg font-semibold text-pink-600">Content 5</div>
+                    <div class="text-sm text-gray-500">Progress</div>
+                    @php
+                        $t = $learningTargetMinutes ?? 0;
+                        $m = $learningApprovedMinutes ?? 0;
+                        $pct = $t ? min(100, ($m / max(1,$t)) * 100) : null;
+                    @endphp
+                    <div class="text-lg font-semibold text-green-600">{{ $pct !== null ? number_format($pct,0).'%' : '-' }}</div>
                 </div>
             </div>
         </div>

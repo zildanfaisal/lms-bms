@@ -59,6 +59,46 @@
                     </ul>
                 </li>
                 @endcan
+                <!-- Learning -->
+                <li x-data="{ open: false }" class="relative">
+                    <button @click.prevent="open = !open" :aria-expanded="open.toString()" class="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/10" :class="sidebarCollapsed ? 'justify-center' : ''">
+                        <span class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
+                                <path d="M12 3c-4.97 0-9 2.239-9 5v8c0 2.761 4.03 5 9 5s9-2.239 9-5V8c0-2.761-4.03-5-9-5Zm0 2c3.867 0 7 1.567 7 3s-3.133 3-7 3-7-1.567-7-3 3.133-3 7-3Zm-7 6.35C6.29 12.286 8.985 13 12 13s5.71-.714 7-1.65V16c0 1.433-3.133 3-7 3s-7-1.567-7-3v-4.65Z" />
+                            </svg>
+                        </span>
+                        <span x-show="!sidebarCollapsed" class="ms-2 flex-1 text-start">Learning</span>
+                        <svg x-show="!sidebarCollapsed" :class="open ? 'rotate-90' : ''" class="h-4 w-4 transform transition-transform text-white/80" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </button>
+
+                    <ul x-cloak x-show="open" x-transition class="mt-2 space-y-1 ps-10" style="display:none;">
+                        <li>
+                            <a href="{{ route('learning.logs.index') }}" class="block px-3 py-2 rounded-lg hover:bg-white/10 text-sm">My Learning</a>
+                        </li>
+                        @can('view any learning log')
+                        <li>
+                            <a href="{{ route('learning.approvals.index') }}" class="block px-3 py-2 rounded-lg hover:bg-white/10 text-sm">Approvals</a>
+                        </li>
+                        @endcan
+                        @can('view any learning platform')
+                        <li>
+                            <a href="{{ route('learning.platforms.index') }}" class="block px-3 py-2 rounded-lg hover:bg-white/10 text-sm">Platforms</a>
+                        </li>
+                        @endcan
+                        @can('view any learning target')
+                        <li>
+                            <a href="{{ route('learning.targets.index') }}" class="block px-3 py-2 rounded-lg hover:bg-white/10 text-sm">Targets</a>
+                        </li>
+                        @endcan
+                        @role('Super Admin|Admin')
+                        <li>
+                            <a href="{{ route('learning.reports.index') }}" class="block px-3 py-2 rounded-lg hover:bg-white/10 text-sm">Reports</a>
+                        </li>
+                        @endrole
+                    </ul>
+                </li>
                 <!-- Struktural -->
                 <li x-data="{ open: false }" class="relative">
                     <button @click.prevent="open = !open" :aria-expanded="open.toString()" class="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/10" :class="sidebarCollapsed ? 'justify-center' : ''">

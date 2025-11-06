@@ -17,6 +17,9 @@ class KaryawanController extends Controller
     public function index()
     {
         $q = request()->query('q');
+        $dirId = request()->integer('direktorat_id');
+        $divId = request()->integer('divisi_id');
+        $unitId = request()->integer('unit_id');
 
         $query = Karyawan::query()->with(['direktorat','divisi','unit','jabatan']);
 
@@ -42,6 +45,11 @@ class KaryawanController extends Controller
             });
         }
 
+        // Filters by organization
+        if ($dirId) { $query->where('direktorat_id', $dirId); }
+        if ($divId) { $query->where('divisi_id', $divId); }
+        if ($unitId) { $query->where('unit_id', $unitId); }
+
         // if AJAX/JSON requested, return simple JSON array for instant search
         if (request()->wantsJson() || request()->ajax()) {
             $items = $query->orderBy('nama')->limit(50)->get()->map(function($k) {
@@ -60,7 +68,14 @@ class KaryawanController extends Controller
 
         $karyawans = $query->orderBy('nama')->paginate(10)->withQueryString();
 
-        return view('karyawan.index', compact('karyawans','q'));
+        // Options for filters (dependent lists)
+        $direktorats = Direktorat::orderBy('nama_direktorat')->get();
+        $divisis = Divisi::when($dirId, fn($qq) => $qq->where('direktorat_id', $dirId))
+            ->orderBy('nama_divisi')->get();
+        $units = Unit::when($divId, fn($qq) => $qq->where('divisi_id', $divId))
+            ->orderBy('nama_unit')->get();
+
+        return view('karyawan.index', compact('karyawans','q','direktorats','divisis','units','dirId','divId','unitId'));
     }
 
     public function create()

@@ -31,23 +31,4 @@
             </div>
         </div>
     </form>
-
-    {{-- Users assignment form --}}
-    <div class="mt-6 bg-white rounded-xl shadow p-4">
-        <h3 class="font-semibold mb-3">Assign Users to Role</h3>
-        <form action="{{ route('roles.users.sync', $role->id) }}" method="POST">
-            @csrf
-            @method('PUT')
-            <label class="block text-sm text-gray-600 mb-2">Users</label>
-            <select name="users[]" multiple size="10" class="w-full rounded border-gray-200">
-                @foreach($users as $u)
-                    <option value="{{ $u->id }}" {{ in_array($u->id, $roleUserIds) ? 'selected' : '' }}>{{ $u->name }} &lt;{{ $u->email }}&gt;</option>
-                @endforeach
-            </select>
-            <div class="mt-4 flex justify-end gap-2">
-                <a href="{{ route('roles.index') }}" class="px-3 py-2 rounded bg-gray-100">Batal</a>
-                <button type="submit" class="px-3 py-2 rounded bg-green-600 text-white">Sync Users</button>
-            </div>
-        </form>
-    </div>
 @endsection

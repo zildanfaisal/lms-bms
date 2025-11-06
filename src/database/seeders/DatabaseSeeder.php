@@ -23,6 +23,9 @@ class DatabaseSeeder extends Seeder
             JabatanSeeder::class,
             PosisiSeeder::class,
             RolesAndPermissionsSeeder::class,
+            LearningPeriodsSeeder::class,
+            LearningPlatformsSeeder::class,
+            // KaryawanSeeder::class,
         ]);
     }
 }

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DirektoratController;
 use App\Http\Controllers\DivisiController;
@@ -9,15 +10,18 @@ use App\Http\Controllers\PosisiController;
 use App\Http\Controllers\KaryawanController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\PermissionController;
+use App\Http\Controllers\LearningLogController;
+use App\Http\Controllers\TeamApprovalController;
+use App\Http\Controllers\LearningPlatformController;
+use App\Http\Controllers\LearningTargetController;
+use App\Http\Controllers\LearningReportController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('auth.login');
 });
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('auth')->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -99,6 +103,33 @@ Route::middleware('auth')->group(function () {
         Route::get('/users/roles', [\App\Http\Controllers\UserRoleController::class, 'index'])->name('users.roles.index');
         Route::put('/users/{user}/roles', [\App\Http\Controllers\UserRoleController::class, 'update'])->name('users.roles.update');
     });
+
+    // Learning Platforms
+    Route::get('/learning/platforms', [LearningPlatformController::class, 'index'])->middleware('permission:view any learning platform')->name('learning.platforms.index');
+    Route::post('/learning/platforms', [LearningPlatformController::class, 'store'])->middleware('permission:create learning platform')->name('learning.platforms.store');
+    Route::put('/learning/platforms/{platform}', [LearningPlatformController::class, 'update'])->middleware('permission:update learning platform')->name('learning.platforms.update');
+    Route::delete('/learning/platforms/{platform}', [LearningPlatformController::class, 'destroy'])->middleware('permission:delete learning platform')->name('learning.platforms.destroy');
+
+    // Learning Targets
+    Route::get('/learning/targets', [LearningTargetController::class, 'index'])->middleware('permission:view any learning target')->name('learning.targets.index');
+    Route::post('/learning/targets', [LearningTargetController::class, 'store'])->middleware('permission:create learning target')->name('learning.targets.store');
+    Route::put('/learning/targets/{target}', [LearningTargetController::class, 'update'])->middleware('permission:update learning target')->name('learning.targets.update');
+    Route::delete('/learning/targets/{target}', [LearningTargetController::class, 'destroy'])->middleware('permission:delete learning target')->name('learning.targets.destroy');
+
+    // My Learning Logs
+    Route::get('/learning/logs', [LearningLogController::class, 'index'])->middleware('permission:view learning log')->name('learning.logs.index');
+    Route::post('/learning/logs', [LearningLogController::class, 'store'])->middleware('permission:create learning log')->name('learning.logs.store');
+    Route::put('/learning/logs/{log}', [LearningLogController::class, 'update'])->middleware('permission:update learning log')->name('learning.logs.update');
+    Route::post('/learning/logs/{log}/submit', [LearningLogController::class, 'submit'])->middleware('permission:submit learning log')->name('learning.logs.submit');
+    Route::get('/learning/logs/{log}', [LearningLogController::class, 'show'])->middleware('permission:view learning log')->name('learning.logs.show');
+
+    // Team Approvals
+    Route::get('/learning/approvals', [TeamApprovalController::class, 'index'])->middleware('permission:view any learning log')->name('learning.approvals.index');
+    Route::post('/learning/logs/{log}/approve', [TeamApprovalController::class, 'approve'])->middleware('permission:approve learning log')->name('learning.logs.approve');
+    Route::post('/learning/logs/{log}/reject', [TeamApprovalController::class, 'reject'])->middleware('permission:reject learning log')->name('learning.logs.reject');
+
+    // Reports
+    Route::get('/learning/reports', [LearningReportController::class, 'index'])->middleware('role:Super Admin|Admin')->name('learning.reports.index');
 });
 
 require __DIR__.'/auth.php';

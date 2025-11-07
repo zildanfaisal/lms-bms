@@ -37,7 +37,7 @@ class UserRoleController extends Controller
             return response()->json(['items' => $items]);
         }
 
-        $users = $baseQuery->paginate(15)->withQueryString();
+        $users = $baseQuery->paginate(10)->withQueryString();
         $roles = Role::orderBy('name')->get();
 
         return view('users.roles.index', compact('users', 'roles', 'q'));

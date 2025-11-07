@@ -7,6 +7,26 @@
 
 @section('content')
     <div class="bg-white shadow-sm sm:rounded-lg p-6">
+      <form method="GET" action="{{ route('learning.reports.index') }}" class="flex items-end gap-3 mb-4">
+        <div>
+          <label class="block text-sm text-gray-600">Periode</label>
+          <select name="period_id" class="mt-1 rounded tom-select">
+            <option value="">(Semua)</option>
+            @foreach(($periodOptions ?? []) as $p)
+              <option value="{{ $p->id }}" @selected($periodId == $p->id)>{{ $p->name }}</option>
+            @endforeach
+          </select>
+        </div>
+        <div>
+          <button class="px-3 py-2 rounded bg-indigo-600 text-white text-sm">Filter</button>
+        </div>
+        <div class="ml-auto">
+          <a href="{{ route('learning.reports.export', ['period_id' => $periodId]) }}" class="px-3 py-2 rounded bg-green-600 text-white text-sm">Export CSV</a>
+        </div>
+      </form>
+      @if(!empty($avgCompletion))
+        <div class="mb-3 text-sm text-gray-600">Rata-rata penyelesaian (baris ditampilkan): <span class="font-medium text-green-700">{{ $avgCompletion }}%</span></div>
+      @endif
       <div class="overflow-x-auto">
         <table class="min-w-full text-sm">
           <thead>

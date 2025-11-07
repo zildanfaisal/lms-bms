@@ -22,33 +22,33 @@
             <select name="platform_id" class="mt-1 w-full border rounded p-2" required>
               <option value="">-- Select Platform --</option>
               @foreach($platforms as $p)
-                <option value="{{ $p->id }}">{{ $p->name }}</option>
+                <option value="{{ $p->id }}" @selected( (string)$p->id === (string)old('platform_id', $prefill['platform_id'] ?? '') )>{{ $p->name }}</option>
               @endforeach
             </select>
           </div>
           <div class="md:col-span-2">
             <label class="block text-sm font-medium">Title</label>
-            <input name="title" type="text" value="{{ old('title') }}" class="mt-1 w-full border rounded p-2" required />
+            <input name="title" type="text" value="{{ old('title', $prefill['title'] ?? '') }}" class="mt-1 w-full border rounded p-2" required />
             @error('title')<div class="text-red-600 text-xs mt-1">{{ $message }}</div>@enderror
           </div>
           <div>
             <label class="block text-sm font-medium">Start Date</label>
-            <input name="started_at" type="date" value="{{ old('started_at') }}" class="mt-1 w-full border rounded p-2" required />
+            <input name="started_at" type="date" value="{{ old('started_at', $prefill['started_at'] ?? '') }}" class="mt-1 w-full border rounded p-2" required />
             @error('started_at')<div class="text-red-600 text-xs mt-1">{{ $message }}</div>@enderror
           </div>
           <div>
             <label class="block text-sm font-medium">End Date</label>
-            <input name="ended_at" type="date" value="{{ old('ended_at') }}" class="mt-1 w-full border rounded p-2" required />
+            <input name="ended_at" type="date" value="{{ old('ended_at', $prefill['ended_at'] ?? '') }}" class="mt-1 w-full border rounded p-2" required />
             @error('ended_at')<div class="text-red-600 text-xs mt-1">{{ $message }}</div>@enderror
           </div>
           <div>
             <label class="block text-sm font-medium">Duration (minutes)</label>
-            <input name="duration_minutes" type="number" min="1" step="1" value="{{ old('duration_minutes') }}" class="mt-1 w-full border rounded p-2" required />
+            <input name="duration_minutes" type="number" min="1" step="1" value="{{ old('duration_minutes', $prefill['duration_minutes'] ?? '') }}" class="mt-1 w-full border rounded p-2" required />
             @error('duration_minutes')<div class="text-red-600 text-xs mt-1">{{ $message }}</div>@enderror
           </div>
           <div class="md:col-span-6">
             <label class="block text-sm font-medium">Evidence URL (optional)</label>
-            <input name="evidence_url" type="url" value="{{ old('evidence_url') }}" class="mt-1 w-full border rounded p-2" />
+            <input name="evidence_url" type="url" value="{{ old('evidence_url', $prefill['evidence_url'] ?? '') }}" class="mt-1 w-full border rounded p-2" />
             @error('evidence_url')<div class="text-red-600 text-xs mt-1">{{ $message }}</div>@enderror
           </div>
           <div class="md:col-span-6">

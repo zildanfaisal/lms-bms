@@ -15,6 +15,8 @@ use App\Http\Controllers\TeamApprovalController;
 use App\Http\Controllers\LearningPlatformController;
 use App\Http\Controllers\LearningTargetController;
 use App\Http\Controllers\LearningReportController;
+use App\Http\Controllers\LearningPlanProposalController;
+use App\Http\Controllers\LearningPlanReviewController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -116,6 +118,29 @@ Route::middleware('auth')->group(function () {
     Route::put('/learning/targets/{target}', [LearningTargetController::class, 'update'])->middleware('permission:update learning target')->name('learning.targets.update');
     Route::delete('/learning/targets/{target}', [LearningTargetController::class, 'destroy'])->middleware('permission:delete learning target')->name('learning.targets.destroy');
 
+    // Learning Plan Proposals (Manager/Senior Manager -> role Admin)
+    Route::middleware('role:Admin|Super Admin')->group(function(){
+        Route::get('/learning/plans', [LearningPlanProposalController::class, 'index'])->name('learning.plans.index');
+        Route::get('/learning/plans/create', [LearningPlanProposalController::class, 'create'])->name('learning.plans.create');
+        Route::post('/learning/plans', [LearningPlanProposalController::class, 'store'])->name('learning.plans.store');
+        Route::get('/learning/plans/{proposal}/edit', [LearningPlanProposalController::class, 'edit'])->name('learning.plans.edit');
+        Route::put('/learning/plans/{proposal}', [LearningPlanProposalController::class, 'update'])->name('learning.plans.update');
+        Route::post('/learning/plans/{proposal}/submit', [LearningPlanProposalController::class, 'submit'])->name('learning.plans.submit');
+        // Impact preview endpoint (read-only)
+        Route::get('/learning/plans/impact', [LearningPlanProposalController::class, 'impactPreview'])->name('learning.plans.impact');
+    });
+
+    // Recommendation events (track clicks)
+    Route::get('/learning/recommendations/{recommendation}/click', [\App\Http\Controllers\LearningRecommendationEventController::class, 'click'])->middleware('auth')->name('learning.recommendations.click');
+
+    // Learning Plan Reviews (HR -> role Super Admin)
+    Route::middleware('role:Super Admin')->group(function(){
+        Route::get('/learning/reviews', [LearningPlanReviewController::class, 'index'])->name('learning.reviews.index');
+        Route::get('/learning/reviews/{proposal}', [LearningPlanReviewController::class, 'show'])->name('learning.reviews.show');
+        Route::post('/learning/reviews/{proposal}/approve', [LearningPlanReviewController::class, 'approve'])->name('learning.reviews.approve');
+        Route::post('/learning/reviews/{proposal}/reject', [LearningPlanReviewController::class, 'reject'])->name('learning.reviews.reject');
+    });
+
     // My Learning Logs
     Route::get('/learning/logs', [LearningLogController::class, 'index'])->middleware('permission:view learning log')->name('learning.logs.index');
     Route::post('/learning/logs', [LearningLogController::class, 'store'])->middleware('permission:create learning log')->name('learning.logs.store');
@@ -130,6 +155,7 @@ Route::middleware('auth')->group(function () {
 
     // Reports
     Route::get('/learning/reports', [LearningReportController::class, 'index'])->middleware('role:Super Admin|Admin')->name('learning.reports.index');
+    Route::get('/learning/reports/export', [LearningReportController::class, 'export'])->middleware('role:Super Admin|Admin')->name('learning.reports.export');
 });
 
 require __DIR__.'/auth.php';

@@ -15,6 +15,10 @@
             </div>
         </div>
 
+        @php
+            $user = request()->user();
+            $isManager = in_array($user?->karyawan?->jabatan?->nama_jabatan, ['Manager', 'Senior Manager']);
+        @endphp
         <nav class="p-4 flex-1 overflow-auto">
             <ul class="space-y-2">
                 <!-- Dashboard -->
@@ -59,12 +63,42 @@
                     </ul>
                 </li>
                 @endcan
+                @role('Admin|Super Admin')
+                <!-- Learning Plan-->
+                @if($isManager)
+                <li x-data="{ open: false }" class="relative">
+                    <button @click.prevent="open = !open" :aria-expanded="open.toString()" class="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/10" :class="sidebarCollapsed ? 'justify-center' : ''">
+                        <span class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
+                                <path fill-rule="evenodd" d="M7.502 6h7.128A3.375 3.375 0 0 1 18 9.375v9.375a3 3 0 0 0 3-3V6.108c0-1.505-1.125-2.811-2.664-2.94a48.972 48.972 0 0 0-.673-.05A3 3 0 0 0 15 1.5h-1.5a3 3 0 0 0-2.663 1.618c-.225.015-.45.032-.673.05C8.662 3.295 7.554 4.542 7.502 6ZM13.5 3A1.5 1.5 0 0 0 12 4.5h4.5A1.5 1.5 0 0 0 15 3h-1.5Z" clip-rule="evenodd" />
+                                <path fill-rule="evenodd" d="M3 9.375C3 8.339 3.84 7.5 4.875 7.5h9.75c1.036 0 1.875.84 1.875 1.875v11.25c0 1.035-.84 1.875-1.875 1.875h-9.75A1.875 1.875 0 0 1 3 20.625V9.375ZM6 12a.75.75 0 0 1 .75-.75h.008a.75.75 0 0 1 .75.75v.008a.75.75 0 0 1-.75.75H6.75a.75.75 0 0 1-.75-.75V12Zm2.25 0a.75.75 0 0 1 .75-.75h3.75a.75.75 0 0 1 0 1.5H9a.75.75 0 0 1-.75-.75ZM6 15a.75.75 0 0 1 .75-.75h.008a.75.75 0 0 1 .75.75v.008a.75.75 0 0 1-.75.75H6.75a.75.75 0 0 1-.75-.75V15Zm2.25 0a.75.75 0 0 1 .75-.75h3.75a.75.75 0 0 1 0 1.5H9a.75.75 0 0 1-.75-.75ZM6 18a.75.75 0 0 1 .75-.75h.008a.75.75 0 0 1 .75.75v.008a.75.75 0 0 1-.75.75H6.75a.75.75 0 0 1-.75-.75V18Zm2.25 0a.75.75 0 0 1 .75-.75h3.75a.75.75 0 0 1 0 1.5H9a.75.75 0 0 1-.75-.75Z" clip-rule="evenodd" />
+                            </svg>
+                        </span>
+                        <span x-show="!sidebarCollapsed" class="ms-2 flex-1 text-start">Learning Plan</span>
+                        <svg x-show="!sidebarCollapsed" :class="open ? 'rotate-90' : ''" class="h-4 w-4 transform transition-transform text-white/80" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </button>
+
+                    <ul x-cloak x-show="open" x-transition class="mt-2 space-y-1 ps-10" style="display:none;">
+                        <li>
+                            <a href="{{ route('learning.plans.index') }}" class="block px-3 py-2 rounded-lg hover:bg-white/10 text-sm">Plan Recommendations</a>
+                        </li>
+                        @role('Super Admin')
+                        <li>
+                            <a href="{{ route('learning.reviews.index') }}" class="block px-3 py-2 rounded-lg hover:bg-white/10 text-sm">Review Recommendations</a>
+                        </li>
+                        @endrole
+                    </ul>
+                </li>
+                @endif
+                @endrole
                 <!-- Learning -->
                 <li x-data="{ open: false }" class="relative">
                     <button @click.prevent="open = !open" :aria-expanded="open.toString()" class="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/10" :class="sidebarCollapsed ? 'justify-center' : ''">
                         <span class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
-                                <path d="M12 3c-4.97 0-9 2.239-9 5v8c0 2.761 4.03 5 9 5s9-2.239 9-5V8c0-2.761-4.03-5-9-5Zm0 2c3.867 0 7 1.567 7 3s-3.133 3-7 3-7-1.567-7-3 3.133-3 7-3Zm-7 6.35C6.29 12.286 8.985 13 12 13s5.71-.714 7-1.65V16c0 1.433-3.133 3-7 3s-7-1.567-7-3v-4.65Z" />
+                                <path d="M11.25 4.533A9.707 9.707 0 0 0 6 3a9.735 9.735 0 0 0-3.25.555.75.75 0 0 0-.5.707v14.25a.75.75 0 0 0 1 .707A8.237 8.237 0 0 1 6 18.75c1.995 0 3.823.707 5.25 1.886V4.533ZM12.75 20.636A8.214 8.214 0 0 1 18 18.75c.966 0 1.89.166 2.75.47a.75.75 0 0 0 1-.708V4.262a.75.75 0 0 0-.5-.707A9.735 9.735 0 0 0 18 3a9.707 9.707 0 0 0-5.25 1.533v16.103Z" />
                             </svg>
                         </span>
                         <span x-show="!sidebarCollapsed" class="ms-2 flex-1 text-start">Learning</span>

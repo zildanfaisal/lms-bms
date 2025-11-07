@@ -25,15 +25,27 @@
                     </div>
                 </div>
             </div>
-            <div class="bg-white rounded-xl p-5 shadow-md flex items-center gap-4 md:col-span-1">
-                <div class="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center">
-                    <svg class="w-6 h-6 text-indigo-600" fill="currentColor" viewBox="0 0 20 20"><path d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2h-1V3a1 1 0 00-1-1H6z"></path><path d="M3 11h14v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5z"></path></svg>
-                </div>
-                <div>
-                    <div class="text-sm text-gray-500">Periode Saat Ini</div>
-                    <div class="text-lg font-semibold text-indigo-600">{{ $learningPeriod->name ?? '-' }}</div>
-                </div>
-            </div>
+                        <div class="bg-white rounded-xl p-5 shadow-md md:col-span-1">
+                            <form method="GET" action="{{ route('dashboard') }}" class="space-y-2">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center">
+                                            <svg class="w-6 h-6 text-indigo-600" fill="currentColor" viewBox="0 0 20 20"><path d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2h-1V3a1 1 0 00-1-1H6z"></path><path d="M3 11h14v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5z"></path></svg>
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                            <div class="text-sm text-gray-500">Periode</div>
+                                            <select name="period_id" class="mt-1 w-full rounded tom-select">
+                                                <option value="">(Aktif Otomatis)</option>
+                                                @foreach($periodOptions as $p)
+                                                    <option value="{{ $p->id }}" @selected($selectedPeriodId == $p->id)>{{ $p->name }}</option>
+                                                @endforeach
+                                            </select>
+                                    </div>
+                                </div>
+                                <div class="flex justify-end">
+                                    <button class="px-3 py-1.5 rounded bg-indigo-600 text-white text-xs">Ganti</button>
+                                </div>
+                            </form>
+                        </div>
         </div>
 
         {{-- Stat cards grid --}}
@@ -74,44 +86,58 @@
             </div>
         </div>
 
-        {{-- Table --}}
+        {{-- Recommendations for the user --}}
         <div class="bg-white rounded-xl shadow overflow-hidden">
             <div class="p-4 border-b">
                 <div class="flex justify-between items-center">
-                    <div class="font-semibold">Table 1</div>
-                    <a href="#" class="text-sm text-purple-600">Lihat Semua</a>
+                    <div class="font-semibold">Rekomendasi untuk Anda</div>
                 </div>
             </div>
             <div class="p-4">
-                <div class="overflow-auto">
-                    <table class="min-w-full divide-y">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-4 py-2 text-left text-xs text-gray-500">NO</th>
-                                <th class="px-4 py-2 text-left text-xs text-gray-500">#</th>
-                                <th class="px-4 py-2 text-left text-xs text-gray-500">#</th>
-                                <th class="px-4 py-2 text-left text-xs text-gray-500">#</th>
-                                <th class="px-4 py-2 text-left text-xs text-gray-500">#</th>
-                                <th class="px-4 py-2 text-left text-xs text-gray-500">AKSI</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y">
-                            @for ($i = 1; $i <= 5; $i++)
-                            <tr>
-                                <td class="px-4 py-3 text-sm text-gray-700">{{ $i }}</td>
-                                <td class="px-4 py-3 text-sm text-gray-700">Row {{ ['Pertama','Kedua','Ketiga','Keempat','Kelima'][$i-1] ?? 'Session' }}</td>
-                                <td class="px-4 py-3 text-sm text-gray-700">#</td>
-                                <td class="px-4 py-3 text-sm text-gray-700">#</td>
-                                <td class="px-4 py-3 text-sm text-gray-700">#</td>
-                                <td class="px-4 py-3 text-sm text-gray-700 flex gap-2">
-                                    <a href="#" class="text-purple-600">✏️</a>
-                                    <a href="#" class="text-red-600">🗑️</a>
-                                </td>
-                            </tr>
-                            @endfor
-                        </tbody>
-                    </table>
-                </div>
+                @if (!empty($recommendedItems))
+                    <ul class="space-y-3">
+                        @foreach ($recommendedItems as $idx => $item)
+                            <li class="flex items-start gap-3">
+                                <div class="mt-1 w-2 h-2 rounded-full bg-indigo-500"></div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-center gap-2">
+                                        <div class="text-sm font-medium text-gray-800 truncate">{{ $item['title'] }}</div>
+                                        @if(isset($item['scope_type']))
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-gray-100 text-gray-600 border">
+                                                {{ ucfirst($item['scope_type']) }}
+                                                @if($item['jabatan_id'])<span class="ml-1 text-gray-400">+Jabatan</span>@endif
+                                            </span>
+                                        @endif
+                                        @if(!empty($item['approved_proposal_id']) && $canReviewProposals)
+                                            <a href="{{ route('learning.reviews.show', $item['approved_proposal_id']) }}" class="text-[10px] text-indigo-600 hover:underline">#P{{ $item['approved_proposal_id'] }}</a>
+                                        @endif
+                                        @php($platformName = $item['platform_id'] ? ($platformMap[$item['platform_id']] ?? null) : null)
+                                        @if($platformName)
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-indigo-50 text-indigo-700 border border-indigo-200">
+                                                {{ $platformName }}
+                                            </span>
+                                        @endif
+                                    </div>
+                                    <div class="mt-1 flex items-center gap-3 flex-wrap">
+                                        @if (!empty($item['url']))
+                                            @if(!empty($item['id']))
+                                                <a href="{{ route('learning.recommendations.click', $item['id']) }}" class="text-xs text-indigo-600 hover:underline break-all" target="_blank">Buka</a>
+                                            @else
+                                                <a href="{{ $item['url'] }}" target="_blank" class="text-xs text-indigo-600 hover:underline break-all">Buka</a>
+                                            @endif
+                                        @endif
+                                        <a href="{{ route('learning.logs.index', ['title' => $item['title'] ?? null, 'platform_id' => $item['platform_id'] ?? null, 'evidence_url' => $item['url'] ?? null]) }}" class="inline-flex items-center px-2.5 py-1.5 rounded text-xs font-medium bg-indigo-600 text-white hover:bg-indigo-700">Catat</a>
+                                    </div>
+                                </div>
+                            </li>
+                            @if ($idx >= 9)
+                                @break
+                            @endif
+                        @endforeach
+                    </ul>
+                @else
+                    <div class="text-sm text-gray-500">Belum ada rekomendasi belajar untuk periode ini.</div>
+                @endif
             </div>
         </div>
     </div>

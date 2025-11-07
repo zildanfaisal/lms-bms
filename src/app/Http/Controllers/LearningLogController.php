@@ -31,10 +31,21 @@ class LearningLogController extends Controller
             ->orderByDesc('created_at')
             ->paginate(15);
 
+        // Prefill form fields from query (e.g., when coming from a recommendation)
+        $prefill = [
+            'platform_id' => $request->query('platform_id'),
+            'title' => $request->query('title'),
+            'evidence_url' => $request->query('evidence_url'),
+            'started_at' => $request->query('started_at') ?? now()->toDateString(),
+            'ended_at' => $request->query('ended_at') ?? now()->toDateString(),
+            'duration_minutes' => $request->query('duration_minutes') ?? 60,
+        ];
+
         return view('learning.logs.index', [
             'logs' => $logs,
             'period' => $period,
             'platforms' => LearningPlatform::query()->where('is_active', true)->orderBy('name')->get(),
+            'prefill' => $prefill,
         ]);
     }
 

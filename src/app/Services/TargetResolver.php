@@ -10,6 +10,7 @@ class TargetResolver
 {
     protected array $byKaryawan = [];
     protected array $byJabatan = [];
+    protected array $byUnitJabatan = [];
     protected array $byUnit = [];
     protected array $byDivisi = [];
     protected array $byDirektorat = [];
@@ -22,7 +23,7 @@ class TargetResolver
     {
         if ($this->loadedPeriodId === $periodId) return;
 
-        $this->byKaryawan = $this->byJabatan = $this->byUnit = $this->byDivisi = $this->byDirektorat = [];
+        $this->byKaryawan = $this->byJabatan = $this->byUnitJabatan = $this->byUnit = $this->byDivisi = $this->byDirektorat = [];
         $targets = LearningTarget::where('period_id', $periodId)
             ->orderByDesc('id')
             ->get(['id','period_id','karyawan_id','jabatan_id','unit_id','divisi_id','direktorat_id','target_minutes']);
@@ -30,6 +31,7 @@ class TargetResolver
         foreach ($targets as $t) {
             if ($t->karyawan_id) { $this->byKaryawan[$t->karyawan_id] = (int)$t->target_minutes; }
             if ($t->jabatan_id) { $this->byJabatan[$t->jabatan_id] = (int)$t->target_minutes; }
+            if ($t->unit_id && $t->jabatan_id) { $this->byUnitJabatan[$t->unit_id.'-'.$t->jabatan_id] = (int)$t->target_minutes; }
             if ($t->unit_id) { $this->byUnit[$t->unit_id] = (int)$t->target_minutes; }
             if ($t->divisi_id) { $this->byDivisi[$t->divisi_id] = (int)$t->target_minutes; }
             if ($t->direktorat_id) { $this->byDirektorat[$t->direktorat_id] = (int)$t->target_minutes; }
@@ -47,6 +49,7 @@ class TargetResolver
         $this->loadForPeriod($periodId);
 
         if (isset($this->byKaryawan[$karyawan->id])) return $this->byKaryawan[$karyawan->id];
+        if ($karyawan->unit_id && $karyawan->jabatan_id && isset($this->byUnitJabatan[$karyawan->unit_id.'-'.$karyawan->jabatan_id])) return $this->byUnitJabatan[$karyawan->unit_id.'-'.$karyawan->jabatan_id];
         if ($karyawan->jabatan_id && isset($this->byJabatan[$karyawan->jabatan_id])) return $this->byJabatan[$karyawan->jabatan_id];
         if ($karyawan->unit_id && isset($this->byUnit[$karyawan->unit_id])) return $this->byUnit[$karyawan->unit_id];
         if ($karyawan->divisi_id && isset($this->byDivisi[$karyawan->divisi_id])) return $this->byDivisi[$karyawan->divisi_id];

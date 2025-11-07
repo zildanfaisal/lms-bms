@@ -11,12 +11,23 @@ class DashboardController extends Controller
         $user = request()->user();
         $karyawan = $user?->karyawan;
         $today = \Carbon\Carbon::today();
-        $period = \App\Models\LearningPeriod::where('starts_at', '<=', $today)
-            ->where('ends_at', '>=', $today)
-            ->first();
+        $periodOptions = \App\Models\LearningPeriod::orderByDesc('starts_at')->get(['id','name','starts_at','ends_at']);
+        $selectedPeriodId = (int) request()->get('period_id');
+        $period = null;
+        if ($selectedPeriodId) {
+            $period = $periodOptions->firstWhere('id', $selectedPeriodId);
+        }
+        if (!$period) {
+            $period = \App\Models\LearningPeriod::where('starts_at', '<=', $today)
+                ->where('ends_at', '>=', $today)
+                ->first();
+        }
 
         $target = null;
         $progressMinutes = 0;
+        $recommendedItems = [];
+        $recommendedItems = [];
+        $platformMap = [];
         if ($karyawan && $period) {
             $resolver = app(\App\Services\TargetResolver::class);
             $target = $resolver->for($karyawan, (int)$period->id);
@@ -24,6 +35,19 @@ class DashboardController extends Controller
                 ->where('period_id', $period->id)
                 ->where('status', 'approved')
                 ->sum('duration_minutes');
+
+            // Resolve applied learning recommendations for the user & current period
+            $recResolver = app(\App\Services\RecommendationResolver::class);
+            $recommendedItems = $recResolver->for($karyawan, (int)$period->id);
+            // Map platforms for badges
+            $platformIds = collect($recommendedItems)->pluck('platform_id')->filter()->unique()->values();
+            if ($platformIds->isNotEmpty()) {
+                $platformMap = \App\Models\LearningPlatform::whereIn('id', $platformIds)->pluck('name','id')->toArray();
+            }
+            // Jika tidak ada rekomendasi untuk user di periode ini, sembunyikan target di dashboard
+            if (empty($recommendedItems)) {
+                $target = null;
+            }
         }
 
         // Build profile info for the identity card
@@ -42,8 +66,13 @@ class DashboardController extends Controller
 
         return view('dashboard', [
             'learningPeriod' => $period,
+            'periodOptions' => $periodOptions,
+            'selectedPeriodId' => $period?->id,
             'learningTargetMinutes' => $target,
             'learningApprovedMinutes' => $progressMinutes,
+            'recommendedItems' => $recommendedItems,
+            'platformMap' => $platformMap,
+            'canReviewProposals' => $user?->hasRole('Super Admin') ?? false,
             'profileName' => $displayName ?: '-',
             'profileInitials' => $initials ?: '?',
             'profileDirektorat' => $karyawan?->direktorat?->nama_direktorat ?? '-',

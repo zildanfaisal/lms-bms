@@ -23,13 +23,30 @@ class DashboardController extends Controller
                 ->first();
         }
 
-        $target = null;
-        $progressMinutes = 0;
-        $recommendedItems = [];
-        $recommendedItems = [];
+    $target = null;
+    $progressMinutes = 0;
+    $recommendedItems = [];
+    $recommendedItems = [];
+    $allPeriodStats = [];
         $platformMap = [];
         if ($karyawan && $period) {
             $resolver = app(\App\Services\TargetResolver::class);
+            // Kumpulkan statistik semua periode untuk kartu multi-periode
+            foreach ($periodOptions as $p) {
+                $pTarget = $resolver->for($karyawan, (int)$p->id);
+                $pApproved = \App\Models\LearningLog::where('karyawan_id', $karyawan->id)
+                    ->where('period_id', $p->id)
+                    ->where('status', 'approved')
+                    ->sum('duration_minutes');
+                $allPeriodStats[] = [
+                    'id' => $p->id,
+                    'name' => $p->name,
+                    'target' => $pTarget,
+                    'approved' => $pApproved,
+                    'progress_pct' => $pTarget ? min(100, ($pApproved / max(1,$pTarget)) * 100) : null,
+                ];
+            }
+            // Gunakan periode yang dipilih (atau aktif) untuk blok utama
             $target = $resolver->for($karyawan, (int)$period->id);
             $progressMinutes = \App\Models\LearningLog::where('karyawan_id', $karyawan->id)
                 ->where('period_id', $period->id)
@@ -39,6 +56,36 @@ class DashboardController extends Controller
             // Resolve applied learning recommendations for the user & current period
             $recResolver = app(\App\Services\RecommendationResolver::class);
             $recommendedItems = $recResolver->for($karyawan, (int)$period->id);
+            // Otomatis: tandai selesai jika ada log APPROVED terkait rekomendasi pada periode terpilih
+            $autoDoneIds = \App\Models\LearningLog::query()
+                ->where('karyawan_id', $karyawan->id)
+                ->where('period_id', $period->id)
+                ->where('status', 'approved')
+                ->whereNotNull('recommendation_id')
+                ->pluck('recommendation_id')
+                ->unique()
+                ->all();
+            // Tanda 'Menunggu Approve' jika ada log PENDING terkait rekomendasi pada periode terpilih
+            $pendingIds = \App\Models\LearningLog::query()
+                ->where('karyawan_id', $karyawan->id)
+                ->where('period_id', $period->id)
+                ->where('status', 'pending')
+                ->whereNotNull('recommendation_id')
+                ->pluck('recommendation_id')
+                ->unique()
+                ->all();
+            if (!empty($recommendedItems)) {
+                $recommendedItems = array_map(function($it) use ($autoDoneIds, $pendingIds){
+                    $id = $it['id'] ?? null;
+                    if ($id && in_array($id, $autoDoneIds)) {
+                        $it['done'] = true;
+                        $it['done_source'] = 'auto';
+                    } elseif ($id && in_array($id, $pendingIds)) {
+                        $it['pending'] = true;
+                    }
+                    return $it;
+                }, $recommendedItems);
+            }
             // Map platforms for badges
             $platformIds = collect($recommendedItems)->pluck('platform_id')->filter()->unique()->values();
             if ($platformIds->isNotEmpty()) {
@@ -70,9 +117,17 @@ class DashboardController extends Controller
             'selectedPeriodId' => $period?->id,
             'learningTargetMinutes' => $target,
             'learningApprovedMinutes' => $progressMinutes,
+            'allPeriodStats' => $allPeriodStats,
             'recommendedItems' => $recommendedItems,
             'platformMap' => $platformMap,
             'canReviewProposals' => $user?->hasRole('Super Admin') ?? false,
+            'recentSubmittedLogs' => $karyawan && $period ? \App\Models\LearningLog::with('platform')
+                ->where('karyawan_id',$karyawan->id)
+                ->where('period_id',$period->id)
+                ->whereIn('status',['pending','approved'])
+                ->orderByDesc('submitted_at')
+                ->limit(5)
+                ->get() : collect(),
             'profileName' => $displayName ?: '-',
             'profileInitials' => $initials ?: '?',
             'profileDirektorat' => $karyawan?->direktorat?->nama_direktorat ?? '-',

@@ -85,12 +85,12 @@ class LearningPlanProposalController extends Controller
             'period_id' => ['required','exists:learning_periods,id'],
             'scope_type' => ['required','in:direktorat,divisi,unit'],
             'scope_id' => ['required','integer'],
-            'target_minutes' => ['nullable','integer','min:1'],
             'only_subordinate_jabatans' => ['nullable','boolean'],
             'notes' => ['nullable','string'],
             'recs' => ['array'],
             'recs.*.title' => ['required','string','max:255'],
             'recs.*.url' => ['nullable','url'],
+            'recs.*.target_minutes' => ['nullable','integer','min:1'],
         ]);
         // Validate scope_id existence based on scope_type
         $scopeType = $data['scope_type'];
@@ -102,12 +102,14 @@ class LearningPlanProposalController extends Controller
             $request->validate(['scope_id' => ['exists:unit,id']]);
         }
 
+        // Auto-calculate total target minutes from recommendations
+        $totalTarget = collect($data['recs'] ?? [])->sum(function($r){ return (int)($r['target_minutes'] ?? 0); });
         $proposal = LearningPlanProposal::create([
             'proposer_id' => $request->user()->id,
             'period_id' => $data['period_id'],
             'scope_type' => $data['scope_type'],
             'scope_id' => $data['scope_id'],
-            'target_minutes' => $data['target_minutes'] ?? null,
+            'target_minutes' => $totalTarget > 0 ? $totalTarget : null,
             'only_subordinate_jabatans' => (bool)($data['only_subordinate_jabatans'] ?? false),
             'notes' => $data['notes'] ?? null,
             'status' => 'draft',
@@ -118,6 +120,7 @@ class LearningPlanProposalController extends Controller
                 'proposal_id' => $proposal->id,
                 'title' => $rec['title'],
                 'url' => $rec['url'] ?? null,
+                'target_minutes' => $rec['target_minutes'] ?? null,
             ]);
         }
 
@@ -167,13 +170,13 @@ class LearningPlanProposalController extends Controller
             'period_id' => ['required','exists:learning_periods,id'],
             'scope_type' => ['required','in:direktorat,divisi,unit'],
             'scope_id' => ['required','integer'],
-            'target_minutes' => ['nullable','integer','min:1'],
             'only_subordinate_jabatans' => ['nullable','boolean'],
             'notes' => ['nullable','string'],
             'recs' => ['array'],
             'recs.*.id' => ['nullable','integer'],
             'recs.*.title' => ['required','string','max:255'],
             'recs.*.url' => ['nullable','url'],
+            'recs.*.target_minutes' => ['nullable','integer','min:1'],
         ]);
         // Validate scope_id existence based on scope_type
         $scopeType = $data['scope_type'];
@@ -185,11 +188,12 @@ class LearningPlanProposalController extends Controller
             $request->validate(['scope_id' => ['exists:unit,id']]);
         }
 
+        $totalTarget = collect($data['recs'] ?? [])->sum(function($r){ return (int)($r['target_minutes'] ?? 0); });
         $proposal->update([
             'period_id' => $data['period_id'],
             'scope_type' => $data['scope_type'],
             'scope_id' => $data['scope_id'],
-            'target_minutes' => $data['target_minutes'] ?? null,
+            'target_minutes' => $totalTarget > 0 ? $totalTarget : null,
             'only_subordinate_jabatans' => (bool)($data['only_subordinate_jabatans'] ?? false),
             'notes' => $data['notes'] ?? null,
         ]);
@@ -201,6 +205,7 @@ class LearningPlanProposalController extends Controller
                 'proposal_id' => $proposal->id,
                 'title' => $rec['title'],
                 'url' => $rec['url'] ?? null,
+                'target_minutes' => $rec['target_minutes'] ?? null,
             ]);
         }
 

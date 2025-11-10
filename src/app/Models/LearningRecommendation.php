@@ -10,7 +10,7 @@ class LearningRecommendation extends Model
     use HasFactory;
 
     protected $fillable = [
-        'period_id','scope_type','scope_id','jabatan_id','title','url','platform_id','approved_proposal_id','created_by'
+        'period_id','scope_type','scope_id','jabatan_id','title','url','platform_id','approved_proposal_id','created_by','target_minutes'
     ];
 
     public function period() { return $this->belongsTo(LearningPeriod::class, 'period_id'); }

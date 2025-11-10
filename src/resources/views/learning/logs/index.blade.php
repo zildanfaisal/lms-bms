@@ -14,50 +14,19 @@
         <div class="mb-4 p-3 rounded bg-red-100 text-red-800">{{ session('error') }}</div>
       @endif
 
-      <form method="POST" action="{{ route('learning.logs.store') }}" class="mb-6">
-        @csrf
-        <div class="grid grid-cols-1 md:grid-cols-6 gap-4 items-end">
-          <div class="md:col-span-2">
-            <label class="block text-sm font-medium">Platform</label>
-            <select name="platform_id" class="mt-1 w-full border rounded p-2" required>
-              <option value="">-- Select Platform --</option>
-              @foreach($platforms as $p)
-                <option value="{{ $p->id }}" @selected( (string)$p->id === (string)old('platform_id', $prefill['platform_id'] ?? '') )>{{ $p->name }}</option>
+      <form id="periodFilterForm" method="GET" action="{{ route('learning.logs.index') }}" class="mb-4">
+        <div class="flex flex-wrap gap-3 items-end">
+          <div>
+            <label class="block text-sm font-medium">Filter Periode</label>
+            <select name="period_id" class="mt-1 mb-4 tom-select" onchange="document.getElementById('periodFilterForm').submit()">
+              <option value="">-- Pilih Periode --</option>
+              @foreach($periodOptions as $p)
+                <option value="{{ $p->id }}" @selected(request('period_id') == $p->id)>{{ $p->name }}</option>
               @endforeach
             </select>
-          </div>
-          <div class="md:col-span-2">
-            <label class="block text-sm font-medium">Title</label>
-            <input name="title" type="text" value="{{ old('title', $prefill['title'] ?? '') }}" class="mt-1 w-full border rounded p-2" required />
-            @error('title')<div class="text-red-600 text-xs mt-1">{{ $message }}</div>@enderror
-          </div>
-          <div>
-            <label class="block text-sm font-medium">Start Date</label>
-            <input name="started_at" type="date" value="{{ old('started_at', $prefill['started_at'] ?? '') }}" class="mt-1 w-full border rounded p-2" required />
-            @error('started_at')<div class="text-red-600 text-xs mt-1">{{ $message }}</div>@enderror
-          </div>
-          <div>
-            <label class="block text-sm font-medium">End Date</label>
-            <input name="ended_at" type="date" value="{{ old('ended_at', $prefill['ended_at'] ?? '') }}" class="mt-1 w-full border rounded p-2" required />
-            @error('ended_at')<div class="text-red-600 text-xs mt-1">{{ $message }}</div>@enderror
-          </div>
-          <div>
-            <label class="block text-sm font-medium">Duration (minutes)</label>
-            <input name="duration_minutes" type="number" min="1" step="1" value="{{ old('duration_minutes', $prefill['duration_minutes'] ?? '') }}" class="mt-1 w-full border rounded p-2" required />
-            @error('duration_minutes')<div class="text-red-600 text-xs mt-1">{{ $message }}</div>@enderror
-          </div>
-          <div class="md:col-span-6">
-            <label class="block text-sm font-medium">Evidence URL (optional)</label>
-            <input name="evidence_url" type="url" value="{{ old('evidence_url', $prefill['evidence_url'] ?? '') }}" class="mt-1 w-full border rounded p-2" />
-            @error('evidence_url')<div class="text-red-600 text-xs mt-1">{{ $message }}</div>@enderror
-          </div>
-          <div class="md:col-span-6">
-            <label class="block text-sm font-medium">Description</label>
-            <textarea name="description" class="mt-1 w-full border rounded p-2">{{ old('description') }}</textarea>
-            @error('description')<div class="text-red-600 text-xs mt-1">{{ $message }}</div>@enderror
-          </div>
-          <div>
-            <button class="px-4 py-2 bg-blue-600 text-white rounded">Save Draft</button>
+            <div class="flex gap-2 md:justify-start mb-4">
+              <a href="{{ route('learning.logs.create') }}" class="inline-flex items-center px-3 py-2 rounded bg-purple-600 text-white text-sm">+ Tambah Data</a>
+            </div>
           </div>
         </div>
       </form>
@@ -66,7 +35,7 @@
         <table class="min-w-full text-sm">
           <thead>
             <tr class="border-b">
-              <th class="text-left p-2">#</th>
+              <th class="text-left p-2">No</th>
               <th class="text-left p-2">Platform</th>
               <th class="text-left p-2">Title</th>
               <th class="text-left p-2">Duration</th>

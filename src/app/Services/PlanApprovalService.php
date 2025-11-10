@@ -104,6 +104,7 @@ class PlanApprovalService
                                 'platform_id' => $rec->platform_id,
                                 'approved_proposal_id' => $proposal->id,
                                 'created_by' => $approverId,
+                                'target_minutes' => $rec->target_minutes,
                             ]
                         );
                     }
@@ -122,6 +123,7 @@ class PlanApprovalService
                             'platform_id' => $rec->platform_id,
                             'approved_proposal_id' => $proposal->id,
                             'created_by' => $approverId,
+                            'target_minutes' => $rec->target_minutes,
                         ]
                     );
                 }

@@ -143,6 +143,7 @@ Route::middleware('auth')->group(function () {
 
     // My Learning Logs
     Route::get('/learning/logs', [LearningLogController::class, 'index'])->middleware('permission:view learning log')->name('learning.logs.index');
+    Route::get('/learning/logs/create', [LearningLogController::class, 'create'])->middleware('permission:create learning log')->name('learning.logs.create');
     Route::post('/learning/logs', [LearningLogController::class, 'store'])->middleware('permission:create learning log')->name('learning.logs.store');
     Route::put('/learning/logs/{log}', [LearningLogController::class, 'update'])->middleware('permission:update learning log')->name('learning.logs.update');
     Route::post('/learning/logs/{log}/submit', [LearningLogController::class, 'submit'])->middleware('permission:submit learning log')->name('learning.logs.submit');
@@ -155,7 +156,8 @@ Route::middleware('auth')->group(function () {
 
     // Reports
     Route::get('/learning/reports', [LearningReportController::class, 'index'])->middleware('role:Super Admin|Admin')->name('learning.reports.index');
-    Route::get('/learning/reports/export', [LearningReportController::class, 'export'])->middleware('role:Super Admin|Admin')->name('learning.reports.export');
+    Route::get('/learning/reports/export-pdf', [LearningReportController::class, 'exportPdf'])->middleware('role:Super Admin|Admin')->name('learning.reports.export.pdf');
+    Route::get('/learning/reports/{karyawan}', [LearningReportController::class, 'show'])->middleware('role:Super Admin|Admin')->name('learning.reports.show');
 });
 
 require __DIR__.'/auth.php';

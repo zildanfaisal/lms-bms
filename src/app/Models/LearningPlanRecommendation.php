@@ -10,7 +10,7 @@ class LearningPlanRecommendation extends Model
     use HasFactory;
 
     protected $fillable = [
-        'proposal_id','title','url','platform_id','description'
+        'proposal_id','title','url','platform_id','description','target_minutes'
     ];
 
     public function proposal() { return $this->belongsTo(LearningPlanProposal::class, 'proposal_id'); }

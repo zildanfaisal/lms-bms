@@ -25,7 +25,7 @@ class RecommendationResolver
 
         $recs = LearningRecommendation::where('period_id', $periodId)
             ->orderByDesc('id')
-            ->get(['id','period_id','scope_type','scope_id','jabatan_id','title','url','platform_id','approved_proposal_id']);
+            ->get(['id','period_id','scope_type','scope_id','jabatan_id','title','url','platform_id','approved_proposal_id','target_minutes']);
 
         foreach ($recs as $r) {
             switch ($r->scope_type) {
@@ -78,6 +78,7 @@ class RecommendationResolver
                     'scope_id' => (int)$r->scope_id,
                     'jabatan_id' => $r->jabatan_id,
                     'approved_proposal_id' => $r->approved_proposal_id,
+                    'target_minutes' => $r->target_minutes,
                 ];
             }
         };

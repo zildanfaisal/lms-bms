@@ -73,8 +73,9 @@
           </div>
         </div>
         <div>
-          <label class="block text-sm font-medium">Target Menit (opsional)</label>
-          <input type="number" min="1" step="1" name="target_minutes" value="{{ old('target_minutes', $proposal->target_minutes) }}" class="mt-1 w-full border rounded p-2" />
+          <label class="block text-sm font-medium">Total Target Menit (otomatis)</label>
+          <input type="number" name="target_minutes" id="total-target-minutes" value="{{ $proposal->target_minutes }}" class="mt-1 w-full border rounded p-2 bg-gray-50" readonly />
+          <div class="text-xs text-gray-500 mt-1">Nilai otomatis dari penjumlahan target menit rekomendasi.</div>
         </div>
         <div>
           <label class="block text-sm font-medium">Opsi Cakupan Target</label>
@@ -92,12 +93,14 @@
           <label class="block text-sm font-medium">Rekomendasi</label>
           <div id="rec-list" class="mt-2 space-y-2">
             @foreach($proposal->recommendations as $i => $rec)
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-2 items-center">
                 <input name="recs[{{ $i }}][title]" value="{{ $rec->title }}" class="border rounded p-2" required />
                 <input name="recs[{{ $i }}][url]" value="{{ $rec->url }}" class="border rounded p-2" />
+                <input name="recs[{{ $i }}][target_minutes]" type="number" min="1" step="1" value="{{ $rec->target_minutes }}" placeholder="Target menit" class="border rounded p-2" />
               </div>
             @endforeach
           </div>
+          <div class="mt-2 text-sm text-gray-600">Total target menit: <span id="rec-total-minutes">0</span></div>
           <button type="button" id="add-rec" class="mt-2 px-3 py-1 rounded bg-gray-100">+ Tambah Rekomendasi</button>
         </div>
       </div>
@@ -118,17 +121,27 @@
     (function(){
       const addBtn = document.getElementById('add-rec');
       const list = document.getElementById('rec-list');
-      function addRow(title='', url=''){
+      function addRow(title='', url='', tgt='') {
         const i = list.children.length;
         const row = document.createElement('div');
-        row.className = 'grid grid-cols-1 md:grid-cols-2 gap-2';
+        row.className = 'grid grid-cols-1 md:grid-cols-3 gap-2 items-center';
         row.innerHTML = `
           <input name=\"recs[${i}][title]\" placeholder=\"Judul\" value=\"${title}\" class=\"border rounded p-2\" required />
           <input name=\"recs[${i}][url]\" placeholder=\"URL (opsional)\" value=\"${url}\" class=\"border rounded p-2\" />
+          <input name=\"recs[${i}][target_minutes]\" type=\"number\" min=\"1\" step=\"1\" placeholder=\"Target menit\" value=\"${tgt}\" class=\"border rounded p-2\" />
         `;
         list.appendChild(row);
+        recalcTotal();
       }
       addBtn?.addEventListener('click', ()=> addRow());
+      function recalcTotal(){
+        let total = 0;
+        list.querySelectorAll('input[name$="[target_minutes]"]').forEach(inp=>{ const v=parseInt(inp.value,10); if(!isNaN(v)) total += v; });
+        const el = document.getElementById('rec-total-minutes'); if (el) el.textContent = total;
+        const totalInput = document.getElementById('total-target-minutes'); if (totalInput) totalInput.value = total > 0 ? total : '';
+      }
+      list.addEventListener('input', function(e){ if(e.target && e.target.name && e.target.name.endsWith('[target_minutes]')) recalcTotal(); });
+      recalcTotal();
 
       // Cascading selects and impact preview
       const scopeType = document.getElementById('scope-type');

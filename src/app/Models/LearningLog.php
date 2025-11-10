@@ -13,7 +13,7 @@ class LearningLog extends Model
     protected $table = 'learning_logs';
 
     protected $fillable = [
-        'karyawan_id','platform_id','period_id','title','description','started_at','ended_at','duration_minutes','evidence_url','evidence_path','status','submitted_at','validated_at','validated_by','reject_reason'
+    'karyawan_id','platform_id','period_id','title','description','started_at','ended_at','duration_minutes','learning_url','evidence_url','evidence_path','status','submitted_at','validated_at','validated_by','reject_reason','recommendation_id'
     ];
 
     protected $casts = [
@@ -33,4 +33,5 @@ class LearningLog extends Model
     public function period() { return $this->belongsTo(LearningPeriod::class, 'period_id'); }
     public function validator() { return $this->belongsTo(User::class, 'validated_by'); }
     public function activities() { return $this->hasMany(LearningLogActivity::class, 'learning_log_id'); }
+    public function recommendation() { return $this->belongsTo(LearningRecommendation::class, 'recommendation_id'); }
 }

@@ -30,7 +30,7 @@ class TeamApprovalController extends Controller
             ->filter(fn($owner) => $resolver->isEligibleApprover($owner, $me))
             ->pluck('id');
 
-        $logs = LearningLog::with(['owner.jabatan','platform'])
+        $logs = LearningLog::with(['owner.jabatan','platform','recommendation'])
             ->whereIn('karyawan_id', $eligibleOwnerIds)
             ->where('status', LearningLog::STATUS_PENDING)
             ->orderBy('submitted_at')

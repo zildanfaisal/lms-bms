@@ -73,11 +73,12 @@
                 </div>
                 @error('scope_id')<div class="text-xs text-red-600 mt-1">{{ $message }}</div>@enderror
             </div>
-            <div>
-                <label class="block text-sm font-medium">Target Menit</label>
-                <input type="number" min="1" step="1" name="target_minutes" class="mt-1 w-full border rounded p-2" />
-                @error('target_minutes')<div class="text-xs text-red-600 mt-1">{{ $message }}</div>@enderror
-            </div>
+      <div>
+        <label class="block text-sm font-medium">Total Target Menit (otomatis)</label>
+        <input type="number" name="target_minutes" id="total-target-minutes" class="mt-1 w-full border rounded p-2 bg-gray-50" readonly />
+        <div class="text-xs text-gray-500 mt-1">Nilai ini otomatis dijumlahkan dari target menit setiap rekomendasi.</div>
+        @error('target_minutes')<div class="text-xs text-red-600 mt-1">{{ $message }}</div>@enderror
+      </div>
             <div>
                 <label class="block text-sm font-medium">Catatan</label>
                 <div class="mt-1 flex items-center gap-2">
@@ -89,12 +90,13 @@
                 <input id="only-subordinate" type="checkbox" name="only_subordinate_jabatans" value="1" class="rounded" />
                 <label for="only-subordinate" class="text-sm text-gray-700">Berlaku hanya untuk jabatan di bawah Anda (khusus jika Scope = Unit)</label>
             </div>
-            <div class="md:col-span-2">
-                <label class="block text-sm font-medium">Rekomendasi</label>
-            <div id="rec-list" class="mt-2 space-y-2"></div>
-                <button type="button" id="add-rec" class="mt-2 px-3 py-1 rounded bg-gray-100">+ Tambah Rekomendasi</button>
-                @error('recs')<div class="text-xs text-red-600 mt-1">{{ $message }}</div>@enderror
-            </div>
+      <div class="md:col-span-2">
+        <label class="block text-sm font-medium">Rekomendasi</label>
+        <div id="rec-list" class="mt-2 space-y-2"></div>
+  <div class="mt-2 text-sm text-gray-600">Total target menit: <span id="rec-total-minutes">0</span></div>
+        <button type="button" id="add-rec" class="mt-2 px-3 py-1 rounded bg-gray-100">+ Tambah Rekomendasi</button>
+        @error('recs')<div class="text-xs text-red-600 mt-1">{{ $message }}</div>@enderror
+      </div>
         </div>
         <div class="mt-6">
             <button class="px-4 py-2 bg-purple-600 text-white rounded">Submit</button>
@@ -107,18 +109,33 @@
     (function(){
       const addBtn = document.getElementById('add-rec');
       const list = document.getElementById('rec-list');
-      function addRow(title='', url=''){
+      function addRow(title='', url='', tgt=''){
         const i = list.children.length;
         const row = document.createElement('div');
-        row.className = 'grid grid-cols-1 md:grid-cols-2 gap-2';
+        row.className = 'grid grid-cols-1 md:grid-cols-3 gap-2 items-center';
         row.innerHTML = `
           <input name="recs[${i}][title]" placeholder="Judul" value="${title}" class="border rounded p-2" required />
           <input name="recs[${i}][url]" placeholder="URL (opsional)" value="${url}" class="border rounded p-2" />
+          <input name="recs[${i}][target_minutes]" type="number" min="1" step="1" placeholder="Target menit" value="${tgt}" class="border rounded p-2" />
         `;
         list.appendChild(row);
+        recalcTotal();
       }
       addBtn?.addEventListener('click', ()=> addRow());
       if(list.children.length === 0){ addRow(); }
+
+      function recalcTotal(){
+        let total = 0;
+        list.querySelectorAll('input[name$="[target_minutes]"]').forEach(inp=>{
+          const v = parseInt(inp.value, 10);
+          if(!isNaN(v)) total += v;
+        });
+        const span = document.getElementById('rec-total-minutes');
+        if (span) span.textContent = total;
+        const hiddenTotal = document.getElementById('total-target-minutes');
+        if (hiddenTotal) hiddenTotal.value = total > 0 ? total : '';
+      }
+      list.addEventListener('input', function(e){ if (e.target && e.target.name && e.target.name.endsWith('[target_minutes]')) recalcTotal(); });
 
       // Cascading selects and impact preview
       const scopeType = document.getElementById('scope-type');

@@ -88,6 +88,9 @@
                         <li>
                             <a href="{{ route('learning.reviews.index') }}" class="block px-3 py-2 rounded-lg hover:bg-white/10 text-sm">Review Recommendations</a>
                         </li>
+                        <li>
+                            <a href="{{ route('learning.plans.history.index') }}" class="block px-3 py-2 rounded-lg hover:bg-white/10 text-sm">History Recommendations</a>
+                        </li>
                         @endrole
                     </ul>
                 </li>

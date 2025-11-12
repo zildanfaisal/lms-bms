@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\LearningPlanProposal;
 use App\Models\LearningPlanRecommendation;
+use App\Models\LearningRecommendation;
+use App\Models\User;
 use App\Models\LearningPeriod;
 use App\Models\Direktorat;
 use App\Models\Unit;
@@ -304,6 +306,56 @@ class LearningPlanProposalController extends Controller
             'total_jabatans' => $jabatanRows->count(),
             'total_karyawans' => $totalKaryawans,
             'jabatans' => $jabatanRows,
+        ]);
+    }
+
+    /**
+     * History detail of a proposal for modal popup (JSON).
+     */
+    public function history(LearningPlanProposal $proposal)
+    {
+        // Eager load minimal relations
+        $proposal->load(['period','proposer','recommendations']);
+
+        // Resolve scope name
+        $scopeName = match($proposal->scope_type) {
+            'unit' => optional(\App\Models\Unit::find($proposal->scope_id))->nama_unit,
+            'divisi' => optional(\App\Models\Divisi::find($proposal->scope_id))->nama_divisi,
+            'direktorat' => optional(\App\Models\Direktorat::find($proposal->scope_id))->nama_direktorat,
+            default => null,
+        };
+
+        // Applied recommendations count (when approved)
+        $appliedCount = LearningRecommendation::where('approved_proposal_id', $proposal->id)->count();
+
+        $approverName = $proposal->approved_by ? optional(User::find($proposal->approved_by))->name : null;
+
+        return response()->json([
+            'id' => $proposal->id,
+            'period' => $proposal->period?->name,
+            'scope_type' => $proposal->scope_type,
+            'scope_id' => $proposal->scope_id,
+            'scope_name' => $scopeName,
+            'only_subordinate_jabatans' => (bool)$proposal->only_subordinate_jabatans,
+            'target_minutes' => $proposal->target_minutes,
+            'status' => $proposal->status,
+            'approved_at' => optional($proposal->approved_at)?->toDateTimeString(),
+            'approved_by' => $approverName,
+            'rejected_reason' => $proposal->rejected_reason,
+            'created_at' => optional($proposal->created_at)?->toDateTimeString(),
+            'proposer' => [
+                'id' => $proposal->proposer?->id,
+                'name' => $proposal->proposer?->name,
+                'email' => $proposal->proposer?->email,
+            ],
+            'recommendations' => $proposal->recommendations->map(function($r){
+                return [
+                    'title' => $r->title,
+                    'url' => $r->url,
+                    'target_minutes' => $r->target_minutes,
+                ];
+            })->values(),
+            'applied_recommendations' => $appliedCount,
         ]);
     }
 }

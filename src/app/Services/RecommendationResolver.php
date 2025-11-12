@@ -24,7 +24,8 @@ class RecommendationResolver
     $this->byUnit = $this->byUnitJabatan = $this->byDivisi = $this->byDirektorat = [];
 
         $recs = LearningRecommendation::where('period_id', $periodId)
-            ->orderByDesc('id')
+            // Urutkan sesuai urutan input awal (id terkecil lebih dulu)
+            ->orderBy('id')
             ->get(['id','period_id','scope_type','scope_id','jabatan_id','title','url','platform_id','approved_proposal_id','target_minutes']);
 
         foreach ($recs as $r) {

@@ -128,6 +128,8 @@ Route::middleware('auth')->group(function () {
         Route::post('/learning/plans/{proposal}/submit', [LearningPlanProposalController::class, 'submit'])->name('learning.plans.submit');
         // Impact preview endpoint (read-only)
         Route::get('/learning/plans/impact', [LearningPlanProposalController::class, 'impactPreview'])->name('learning.plans.impact');
+        // History detail (JSON) for modal popup
+        Route::get('/learning/plans/{proposal}/history', [LearningPlanProposalController::class, 'history'])->name('learning.plans.history');
     });
 
     // Recommendation events (track clicks)
@@ -139,6 +141,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/learning/reviews/{proposal}', [LearningPlanReviewController::class, 'show'])->name('learning.reviews.show');
         Route::post('/learning/reviews/{proposal}/approve', [LearningPlanReviewController::class, 'approve'])->name('learning.reviews.approve');
         Route::post('/learning/reviews/{proposal}/reject', [LearningPlanReviewController::class, 'reject'])->name('learning.reviews.reject');
+        // All history page (Super Admin): approved/rejected proposals listing
+        Route::get('/learning/plans/history', [LearningPlanReviewController::class, 'historyIndex'])->name('learning.plans.history.index');
     });
 
     // My Learning Logs

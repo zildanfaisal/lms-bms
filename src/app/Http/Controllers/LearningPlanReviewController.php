@@ -122,4 +122,52 @@ class LearningPlanReviewController extends Controller
         $proposal->save();
         return redirect()->route('learning.reviews.index')->with('status','Usulan ditolak.');
     }
+
+    /**
+     * Super Admin history index: list all approved or rejected proposals with filters and pagination.
+     */
+    public function historyIndex(Request $request)
+    {
+        $query = LearningPlanProposal::with(['period','proposer.karyawan.jabatan'])
+            ->whereIn('status',['approved','rejected']);
+
+        $periodId = $request->get('period_id');
+        $status = $request->get('status'); // optional: approved/rejected
+        $scopeType = $request->get('scope_type');
+        if ($periodId) { $query->where('period_id',$periodId); }
+        if ($status && in_array($status,['approved','rejected'])) { $query->where('status',$status); }
+        if ($scopeType && in_array($scopeType,['direktorat','divisi','unit'])) { $query->where('scope_type',$scopeType); }
+
+        $proposals = $query->orderByDesc('approved_at')->paginate(15)->appends($request->query());
+
+        // Resolve scope names (batched)
+        $scopeNames = [];
+        $byType = ['direktorat'=>[],'divisi'=>[],'unit'=>[]];
+        foreach ($proposals as $p) { $byType[$p->scope_type][] = $p->scope_id; }
+        if ($byType['direktorat']) {
+            $dirs = Direktorat::whereIn('id', array_unique($byType['direktorat']))->get(['id','nama_direktorat']);
+            foreach ($dirs as $d) { $scopeNames['direktorat-'.$d->id] = $d->nama_direktorat; }
+        }
+        if ($byType['divisi']) {
+            $divs = Divisi::whereIn('id', array_unique($byType['divisi']))->get(['id','nama_divisi']);
+            foreach ($divs as $d) { $scopeNames['divisi-'.$d->id] = $d->nama_divisi; }
+        }
+        if ($byType['unit']) {
+            $units = Unit::whereIn('id', array_unique($byType['unit']))->get(['id','nama_unit']);
+            foreach ($units as $u) { $scopeNames['unit-'.$u->id] = $u->nama_unit; }
+        }
+
+        $periodOptions = \App\Models\LearningPeriod::orderByDesc('starts_at')->get(['id','name']);
+
+        return view('learning.reviews.history', [
+            'proposals' => $proposals,
+            'scopeNames' => $scopeNames,
+            'periodOptions' => $periodOptions,
+            'activeFilters' => [
+                'period_id' => $periodId,
+                'status' => $status,
+                'scope_type' => $scopeType,
+            ],
+        ]);
+    }
 }

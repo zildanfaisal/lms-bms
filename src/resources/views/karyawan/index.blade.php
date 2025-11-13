@@ -92,7 +92,7 @@
                                     <x-action-button type="edit" href="{{ route('karyawan.edit', $k->id) }}" color="purple">Edit</x-action-button>
                                 @endcan
                                 @can('delete karyawan')
-                                    <x-action-button type="delete" action="{{ route('karyawan.destroy', $k->id) }}" color="red" confirm="Hapus karyawan ini?" />
+                                    <x-action-button type="delete" action="{{ route('karyawan.destroy', $k->id) }}" color="red" confirm="Hapus karyawan ini?" precheck="{{ route('karyawan.precheck-delete', $k->id) }}" />
                                 @endcan
                             </td>
                         </tr>
@@ -163,7 +163,7 @@
                         <td class="px-4 py-3 text-sm text-gray-700">${IS.escape(item.jabatan || '-')}</td>\
                         <td class="px-4 py-3 text-sm text-gray-700 flex gap-2">\
                             ${CAN_EDIT ? IS.renderEdit(`/karyawan/${item.id}/edit`, 'text-purple-600') : ''}\
-                            ${CAN_DELETE ? IS.renderDelete(`/karyawan/${item.id}`, 'Hapus karyawan ini?', 'text-red-600') : ''}\
+                            ${CAN_DELETE ? IS.renderDelete(`/karyawan/${item.id}`, 'Hapus karyawan ini?', 'text-red-600', 'DELETE', `/karyawan/${item.id}/precheck-delete`) : ''}\
                         </td>\
                     </tr>`).join('');
                 if(pagination) pagination.style.display = 'none';

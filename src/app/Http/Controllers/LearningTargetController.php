@@ -18,7 +18,7 @@ class LearningTargetController extends Controller
             ->when($periodId, fn($q) => $q->where('period_id',$periodId))
             ->orderByDesc('id')
             ->paginate(20);
-        $periods = LearningPeriod::orderByDesc('starts_at')->get();
+    $periods = LearningPeriod::where('is_active', true)->orderByDesc('starts_at')->get();
         $direktorats = Direktorat::orderBy('nama_direktorat')->get();
         $divisis = collect();
         return view('learning.targets.index', compact('targets','periodId','periods','direktorats','divisis'));
@@ -27,7 +27,7 @@ class LearningTargetController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'period_id' => ['required','exists:learning_periods,id'],
+            'period_id' => ['required', \Illuminate\Validation\Rule::exists('learning_periods','id')->where('is_active', true)],
             'karyawan_id' => ['nullable','exists:karyawan,id'],
             'jabatan_id' => ['nullable','exists:jabatan,id'],
             'unit_id' => ['nullable','exists:unit,id'],
@@ -64,7 +64,8 @@ class LearningTargetController extends Controller
 
     protected function currentPeriod(): ?LearningPeriod
     {
-        return LearningPeriod::whereDate('starts_at', '<=', now())
+        return LearningPeriod::where('is_active', true)
+            ->whereDate('starts_at', '<=', now())
             ->whereDate('ends_at', '>=', now())
             ->first();
     }

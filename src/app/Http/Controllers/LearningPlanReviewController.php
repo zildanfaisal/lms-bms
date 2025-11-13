@@ -106,7 +106,7 @@ class LearningPlanReviewController extends Controller
             return back()->with('error','Status usulan tidak valid untuk approve.');
         }
         $service->apply($proposal, request()->user()->id);
-        return redirect()->route('learning.reviews.index')->with('status','Usulan telah disetujui dan diterapkan.');
+    return redirect()->route('learning.reviews.index')->with('success','Usulan disetujui dan rekomendasi diterapkan.');
     }
 
     public function reject(Request $request, LearningPlanProposal $proposal)
@@ -120,7 +120,7 @@ class LearningPlanReviewController extends Controller
         $proposal->approved_by = request()->user()->id;
         $proposal->approved_at = now();
         $proposal->save();
-        return redirect()->route('learning.reviews.index')->with('status','Usulan ditolak.');
+    return redirect()->route('learning.reviews.index')->with('success','Usulan berhasil ditolak.');
     }
 
     /**
@@ -157,7 +157,7 @@ class LearningPlanReviewController extends Controller
             foreach ($units as $u) { $scopeNames['unit-'.$u->id] = $u->nama_unit; }
         }
 
-        $periodOptions = \App\Models\LearningPeriod::orderByDesc('starts_at')->get(['id','name']);
+    $periodOptions = \App\Models\LearningPeriod::where('is_active', true)->orderByDesc('starts_at')->get(['id','name']);
 
         return view('learning.reviews.history', [
             'proposals' => $proposals,

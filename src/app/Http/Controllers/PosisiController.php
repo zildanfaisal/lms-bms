@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Posisi;
 use Illuminate\Http\Request;
+use App\Models\Karyawan;
 
 class PosisiController extends Controller
 {
@@ -71,5 +72,21 @@ class PosisiController extends Controller
 
         $posisi->delete();
         return redirect()->route('posisi.index')->with('success', 'Posisi berhasil dihapus.');
+    }
+
+    /**
+     * Precheck before deleting a posisi. Returns JSON.
+     */
+    public function precheckDelete(Posisi $posisi)
+    {
+        $count = Karyawan::where('posisi_id', $posisi->id)->count();
+        if ($count > 0) {
+            return response()->json([
+                'ok' => false,
+                'message' => "Tidak dapat menghapus posisi karena terdapat {$count} karyawan yang menggunakan posisi ini.",
+                'issues' => ['karyawan' => $count],
+            ]);
+        }
+        return response()->json(['ok' => true, 'message' => 'Posisi dapat dihapus. Lanjutkan?']);
     }
 }

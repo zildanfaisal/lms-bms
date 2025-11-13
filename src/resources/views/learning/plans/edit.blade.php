@@ -8,14 +8,14 @@
 
 @section('content')
   <div class="bg-white rounded-xl shadow p-4">
-    @if (session('status'))
-      <div class="mb-4 p-3 rounded bg-green-100 text-green-800">{{ session('status') }}</div>
+    @if (session('success'))
+      <div class="mb-4 p-3 rounded bg-green-100 text-green-800">{{ session('success') }}</div>
     @endif
     @if (session('error'))
       <div class="mb-4 p-3 rounded bg-red-100 text-red-800">{{ session('error') }}</div>
     @endif
 
-    <form action="{{ route('learning.plans.update', $proposal) }}" method="POST">
+  <form action="{{ route('learning.plans.update', $proposal) }}" method="POST" data-update-confirm="Simpan perubahan usulan?">
       @csrf
       @method('PUT')
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -106,12 +106,6 @@
       </div>
       <div class="mt-6 flex gap-3">
         <button class="px-4 py-2 bg-purple-600 text-white rounded">Simpan Perubahan</button>
-        @if($proposal->status === 'draft')
-          <form action="{{ route('learning.plans.submit',$proposal) }}" method="POST" onsubmit="return confirm('Kirim usulan ke HR?')">
-            @csrf
-            <button class="px-4 py-2 bg-green-600 text-white rounded">Submit ke HR</button>
-          </form>
-        @endif
       </div>
     </form>
   </div>

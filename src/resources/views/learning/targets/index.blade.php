@@ -102,7 +102,7 @@
                 </form>
               </td>
               <td class="p-2">
-                <form method="POST" action="{{ route('learning.targets.destroy', $t) }}" onsubmit="return confirm('Hapus target ini?')">
+                <form method="POST" action="{{ route('learning.targets.destroy', $t) }}" data-confirm="Hapus target ini?">
                   @csrf
                   @method('DELETE')
                   <button class="px-2 py-1 bg-red-600 text-white rounded text-xs">Delete</button>

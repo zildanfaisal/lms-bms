@@ -10,6 +10,8 @@ use App\Models\Divisi;
 use App\Models\Unit;
 use App\Models\Jabatan;
 use App\Models\Posisi;
+use App\Models\LearningLog;
+use App\Models\LearningTarget;
 use Spatie\Permission\Models\Role;
 
 class KaryawanController extends Controller
@@ -195,6 +197,16 @@ class KaryawanController extends Controller
 
     public function destroy(Karyawan $karyawan)
     {
+        // Prevent deletion if related data exists
+        $logs = LearningLog::where('karyawan_id', $karyawan->id)->count();
+        $targets = LearningTarget::where('karyawan_id', $karyawan->id)->count();
+        if ($logs > 0 || $targets > 0) {
+            $parts = [];
+            if ($logs > 0) $parts[] = $logs.' learning log';
+            if ($targets > 0) $parts[] = $targets.' learning target';
+            return redirect()->route('karyawan.index')->with('error', 'Tidak dapat menghapus karyawan karena ada data terkait: '.implode(' dan ', $parts).'.');
+        }
+
         // delete related user as well
         $user = $karyawan->user;
 
@@ -211,5 +223,33 @@ class KaryawanController extends Controller
         }
 
         return redirect()->route('karyawan.index')->with('success','Karyawan dan akun user berhasil dihapus.');
+    }
+
+    /**
+     * Precheck before deleting a karyawan. Returns JSON with counts of related data.
+     */
+    public function precheckDelete(Karyawan $karyawan)
+    {
+        $logs = LearningLog::where('karyawan_id', $karyawan->id)->count();
+        $targets = LearningTarget::where('karyawan_id', $karyawan->id)->count();
+        $issues = [];
+        if ($logs > 0) { $issues[] = "$logs learning log"; }
+        if ($targets > 0) { $issues[] = "$targets learning target"; }
+
+        if (!empty($issues)) {
+            return response()->json([
+                'ok' => false,
+                'message' => 'Tidak dapat menghapus karyawan karena ada data terkait: '.implode(', ', $issues).'.',
+                'issues' => [
+                    'logs' => $logs,
+                    'targets' => $targets,
+                ],
+            ]);
+        }
+
+        return response()->json([
+            'ok' => true,
+            'message' => 'Karyawan dapat dihapus. Lanjutkan?',
+        ]);
     }
 }

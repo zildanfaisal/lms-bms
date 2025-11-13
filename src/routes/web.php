@@ -47,6 +47,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/divisi/{divisi}/edit', [DivisiController::class, 'edit'])->middleware('permission:update divisi')->name('divisi.edit');
     Route::put('/divisi/{divisi}', [DivisiController::class, 'update'])->middleware('permission:update divisi')->name('divisi.update');
     Route::delete('/divisi/{divisi}', [DivisiController::class, 'destroy'])->middleware('permission:delete divisi')->name('divisi.destroy');
+    // Precheck delete Divisi
+    Route::get('/divisi/{divisi}/precheck-delete', [DivisiController::class, 'precheckDelete'])->middleware('permission:delete divisi')->name('divisi.precheck-delete');
+    // Precheck delete Divisi
+    Route::get('/divisi/{divisi}/precheck-delete', [DivisiController::class, 'precheckDelete'])->middleware('permission:delete divisi')->name('divisi.precheck-delete');
 
     // Unit Routes (secured)
     Route::get('/unit/index', [UnitController::class, 'index'])->middleware('permission:view any unit')->name('unit.index');
@@ -55,6 +59,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/unit/{unit}/edit', [UnitController::class, 'edit'])->middleware('permission:update unit')->name('unit.edit');
     Route::put('/unit/{unit}', [UnitController::class, 'update'])->middleware('permission:update unit')->name('unit.update');
     Route::delete('/unit/{unit}', [UnitController::class, 'destroy'])->middleware('permission:delete unit')->name('unit.destroy');
+    // Precheck delete Unit
+    Route::get('/unit/{unit}/precheck-delete', [UnitController::class, 'precheckDelete'])->middleware('permission:delete unit')->name('unit.precheck-delete');
+    // Precheck delete Unit
+    Route::get('/unit/{unit}/precheck-delete', [UnitController::class, 'precheckDelete'])->middleware('permission:delete unit')->name('unit.precheck-delete');
 
     // Karyawan Routes (secured)
     Route::get('/karyawan/index', [KaryawanController::class, 'index'])->middleware('permission:view any karyawan')->name('karyawan.index');
@@ -63,6 +71,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/karyawan/{karyawan}/edit', [KaryawanController::class, 'edit'])->middleware('permission:update karyawan')->name('karyawan.edit');
     Route::put('/karyawan/{karyawan}', [KaryawanController::class, 'update'])->middleware('permission:update karyawan')->name('karyawan.update');
     Route::delete('/karyawan/{karyawan}', [KaryawanController::class, 'destroy'])->middleware('permission:delete karyawan')->name('karyawan.destroy');
+    // Precheck delete Karyawan
+    Route::get('/karyawan/{karyawan}/precheck-delete', [KaryawanController::class, 'precheckDelete'])->middleware('permission:delete karyawan')->name('karyawan.precheck-delete');
+    // Precheck delete Karyawan
+    Route::get('/karyawan/{karyawan}/precheck-delete', [KaryawanController::class, 'precheckDelete'])->middleware('permission:delete karyawan')->name('karyawan.precheck-delete');
 
     // Ajax endpoints for dependent selects (read-only permissions)
     Route::get('/ajax/divisi-by-direktorat/{direktorat}', [DivisiController::class, 'ajaxByDirektorat'])->middleware('permission:view any divisi')->name('ajax.divisi.by.direktorat');
@@ -83,6 +95,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/posisi/{posisi}/edit', [PosisiController::class, 'edit'])->middleware('permission:update posisi')->name('posisi.edit');
     Route::put('/posisi/{posisi}', [PosisiController::class, 'update'])->middleware('permission:update posisi')->name('posisi.update');
     Route::delete('/posisi/{posisi}', [PosisiController::class, 'destroy'])->middleware('permission:delete posisi')->name('posisi.destroy');
+    // Precheck delete Posisi
+    Route::get('/posisi/{posisi}/precheck-delete', [PosisiController::class, 'precheckDelete'])->middleware('permission:delete posisi')->name('posisi.precheck-delete');
+    // Precheck delete Posisi
+    Route::get('/posisi/{posisi}/precheck-delete', [PosisiController::class, 'precheckDelete'])->middleware('permission:delete posisi')->name('posisi.precheck-delete');
 
     // Roles & Permissions management (restricted)
     Route::middleware('permission:manage roles & permissions')->group(function(){
@@ -101,9 +117,11 @@ Route::middleware('auth')->group(function () {
         Route::post('/permissions', [PermissionController::class, 'store'])->name('permissions.store');
         Route::delete('/permissions/{permission}', [PermissionController::class, 'destroy'])->name('permissions.destroy');
 
-        // Users -> Roles management
+    // Users -> Roles management
         Route::get('/users/roles', [\App\Http\Controllers\UserRoleController::class, 'index'])->name('users.roles.index');
         Route::put('/users/{user}/roles', [\App\Http\Controllers\UserRoleController::class, 'update'])->name('users.roles.update');
+    Route::get('/users/{user}/roles/precheck', [\App\Http\Controllers\UserRoleController::class, 'precheck'])->name('users.roles.precheck');
+    Route::get('/users/{user}/roles/precheck', [\App\Http\Controllers\UserRoleController::class, 'precheck'])->name('users.roles.precheck');
     });
 
     // Learning Platforms
@@ -143,6 +161,14 @@ Route::middleware('auth')->group(function () {
         Route::post('/learning/reviews/{proposal}/reject', [LearningPlanReviewController::class, 'reject'])->name('learning.reviews.reject');
         // All history page (Super Admin): approved/rejected proposals listing
         Route::get('/learning/plans/history', [LearningPlanReviewController::class, 'historyIndex'])->name('learning.plans.history.index');
+
+        // Learning Periods CRUD (Super Admin only)
+        Route::get('/learning/periods', [\App\Http\Controllers\LearningPeriodController::class, 'index'])->name('learning.periods.index');
+        Route::get('/learning/periods/create', [\App\Http\Controllers\LearningPeriodController::class, 'create'])->name('learning.periods.create');
+        Route::post('/learning/periods', [\App\Http\Controllers\LearningPeriodController::class, 'store'])->name('learning.periods.store');
+        Route::get('/learning/periods/{period}/edit', [\App\Http\Controllers\LearningPeriodController::class, 'edit'])->name('learning.periods.edit');
+        Route::put('/learning/periods/{period}', [\App\Http\Controllers\LearningPeriodController::class, 'update'])->name('learning.periods.update');
+        Route::delete('/learning/periods/{period}', [\App\Http\Controllers\LearningPeriodController::class, 'destroy'])->name('learning.periods.destroy');
     });
 
     // My Learning Logs

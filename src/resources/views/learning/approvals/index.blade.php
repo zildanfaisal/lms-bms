@@ -61,11 +61,11 @@
               <td class="p-2">{{ $log->submitted_at }}</td>
               <td class="p-2 space-x-2">
                 @can('approve learning log')
-                  <form method="POST" action="{{ route('learning.logs.approve',$log) }}" class="inline">
+                  <form method="POST" action="{{ route('learning.logs.approve',$log) }}" class="inline" data-confirm="Setujui log pembelajaran ini?">
                     @csrf
                     <button class="text-green-700">Approve</button>
                   </form>
-                  <form method="POST" action="{{ route('learning.logs.reject',$log) }}" class="inline">
+                  <form method="POST" action="{{ route('learning.logs.reject',$log) }}" class="inline" data-confirm="Tolak log pembelajaran ini?">
                     @csrf
                     <input type="hidden" name="reason" value="Insufficient detail" />
                     <button class="text-red-700">Reject</button>
@@ -160,15 +160,17 @@ document.addEventListener('DOMContentLoaded', function(){
         const form = document.createElement('form');
         form.method='POST';
         form.action='/learning/logs/' + logId + '/approve';
+        form.setAttribute('data-confirm','Setujui log pembelajaran ini?');
         form.innerHTML='@csrf';
-        document.body.appendChild(form); form.submit();
+        document.body.appendChild(form); form.requestSubmit();
       };
       rejectBtn.onclick = function(){
         const form = document.createElement('form');
         form.method='POST';
         form.action='/learning/logs/' + logId + '/reject';
+        form.setAttribute('data-confirm','Tolak log pembelajaran ini?');
         form.innerHTML='@csrf<input type="hidden" name="reason" value="Insufficient detail" />';
-        document.body.appendChild(form); form.submit();
+        document.body.appendChild(form); form.requestSubmit();
       };
       approveBtn.classList.remove('hidden');
       rejectBtn.classList.remove('hidden');

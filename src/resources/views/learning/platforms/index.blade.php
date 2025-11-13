@@ -8,7 +8,7 @@
 @section('content')
     <div class="bg-white shadow-sm sm:rounded-lg p-6">
 
-      <form method="POST" action="{{ route('learning.platforms.store') }}" class="mb-4">
+  <form method="POST" action="{{ route('learning.platforms.store') }}" class="mb-4">
         @csrf
         <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
           <input name="name" placeholder="Name" class="border rounded p-2" required />
@@ -43,7 +43,7 @@
                 <td class="p-2">@if($p->url)<a href="{{ $p->url }}" class="text-blue-600" target="_blank">Open</a>@endif</td>
                 <td class="p-2">{{ $p->is_active ? 'Yes' : 'No' }}</td>
                 <td class="p-2">
-                  <form method="POST" action="{{ route('learning.platforms.destroy',$p) }}">
+                  <form method="POST" action="{{ route('learning.platforms.destroy',$p) }}" data-confirm="Hapus platform ini?">
                     @csrf
                     @method('DELETE')
                     <button class="text-red-700">Delete</button>

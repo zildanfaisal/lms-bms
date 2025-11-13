@@ -91,7 +91,7 @@ document.addEventListener('DOMContentLoaded', function () {
             </div>
         @endif
 
-        <form action="{{ route('karyawan.update', $karyawan->id) }}" method="POST">
+    <form action="{{ route('karyawan.update', $karyawan->id) }}" method="POST" data-update-confirm="Simpan perubahan karyawan?">
             @csrf
             @method('PUT')
             <div class="space-y-4">

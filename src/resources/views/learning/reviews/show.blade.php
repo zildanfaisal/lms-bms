@@ -48,8 +48,8 @@ document.addEventListener('DOMContentLoaded', function(){
 
 @section('content')
   <div class="bg-white rounded-xl shadow p-4 space-y-4">
-    @if (session('status'))
-      <div class="p-3 rounded bg-green-100 text-green-800">{{ session('status') }}</div>
+    @if (session('success'))
+      <div class="p-3 rounded bg-green-100 text-green-800">{{ session('success') }}</div>
     @endif
     @if (session('error'))
       <div class="p-3 rounded bg-red-100 text-red-800">{{ session('error') }}</div>
@@ -174,11 +174,11 @@ document.addEventListener('DOMContentLoaded', function(){
 
     @if($proposal->status === 'submitted')
       <div class="flex gap-3">
-        <form action="{{ route('learning.reviews.approve',$proposal) }}" method="POST" onsubmit="return confirm('Approve dan terapkan?')">
+  <form action="{{ route('learning.reviews.approve',$proposal) }}" method="POST" data-confirm="Setujui dan terapkan rekomendasi?">
           @csrf
           <button class="px-4 py-2 bg-green-600 text-white rounded">Approve & Apply</button>
         </form>
-        <form action="{{ route('learning.reviews.reject',$proposal) }}" method="POST">
+        <form action="{{ route('learning.reviews.reject',$proposal) }}" method="POST" data-confirm="Tolak usulan ini?">
           @csrf
           <input type="text" name="reason" placeholder="Alasan penolakan" class="border rounded p-2" required />
           <button class="px-4 py-2 bg-red-600 text-white rounded">Reject</button>
@@ -187,7 +187,7 @@ document.addEventListener('DOMContentLoaded', function(){
     @elseif($proposal->status === 'approved')
       <div class="flex items-center gap-4 mt-2">
         <span class="text-sm text-green-700">Sudah disetujui.</span>
-        <form action="{{ route('learning.reviews.approve',$proposal) }}" method="POST" onsubmit="return confirm('Re-apply akan memperbarui target & rekomendasi. Lanjutkan?')">
+  <form action="{{ route('learning.reviews.approve',$proposal) }}" method="POST" data-confirm="Re-apply akan memperbarui target & rekomendasi. Lanjutkan?">
           @csrf
           <button class="px-3 py-1.5 bg-indigo-600 text-white rounded text-xs">Re-apply</button>
         </form>

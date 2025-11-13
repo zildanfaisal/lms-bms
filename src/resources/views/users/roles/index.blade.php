@@ -52,10 +52,10 @@
                                 @endif
                             </td>
                             <td class="p-3">
-                                <form action="{{ route('users.roles.update', $u->id) }}" method="POST" class="flex items-center gap-2">
+                                <form action="{{ route('users.roles.update', $u->id) }}" method="POST" class="flex items-center gap-2" data-update-confirm="Simpan perubahan role pengguna?" data-precheck="{{ route('users.roles.precheck', $u->id) }}">
                                     @csrf
                                     @method('PUT')
-                                    <select name="role" class="min-w-[220px] rounded border-gray-200">
+                                       <select name="role" class="min-w-[220px] rounded border-gray-200">
                                         <option value="">— No role —</option>
                                         @foreach($roles as $r)
                                             <option value="{{ $r->name }}" {{ $u->roles->contains('name', $r->name) ? 'selected' : '' }}>{{ $r->name }}</option>
@@ -113,7 +113,7 @@
                 + '<td class="p-3">' + IS.escape(item.email) + '</td>'
                 + '<td class="p-3">' + renderBadges(item.roles) + '</td>'
                 + '<td class="p-3">'
-                    + '<form action="' + action + '" method="POST" class="flex items-center gap-2">'
+                    + '<form action="' + action + '" method="POST" class="flex items-center gap-2" data-update-confirm="Simpan perubahan role pengguna?" data-precheck="/users/' + item.id + '/roles/precheck">'
                         + IS._csrfInput
                         + '<input type="hidden" name="_method" value="PUT">'
                         + '<select name="role" class="min-w-[220px] rounded border-gray-200">' + options + '</select>'

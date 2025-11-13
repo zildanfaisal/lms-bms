@@ -45,7 +45,7 @@
                                     <x-action-button type="edit" href="{{ route('unit.edit', $d->id) }}" color="purple" />
                                 @endcan
                                 @can('delete unit')
-                                    <x-action-button type="delete" action="{{ route('unit.destroy', $d->id) }}" color="red" confirm="Hapus unit ini?" />
+                                    <x-action-button type="delete" action="{{ route('unit.destroy', $d->id) }}" color="red" confirm="Hapus unit ini?" precheck="{{ route('unit.precheck-delete', $d->id) }}" />
                                 @endcan
                             </td>
                         </tr>
@@ -86,7 +86,7 @@
                         </td>\
                         <td class="px-4 py-3 text-sm text-gray-700 flex gap-2">\
                             ${CAN_EDIT ? IS.renderEdit(`/unit/${item.id}/edit`, 'text-purple-600') : ''}\
-                            ${CAN_DELETE ? IS.renderDelete(`/unit/${item.id}`, 'Hapus unit ini?', 'text-red-600') : ''}\
+                            ${CAN_DELETE ? IS.renderDelete(`/unit/${item.id}`, 'Hapus unit ini?', 'text-red-600', 'DELETE', `/unit/${item.id}/precheck-delete`) : ''}\
                         </td>\
                     </tr>`).join('');
                 if(pagination) pagination.style.display = 'none';

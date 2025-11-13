@@ -63,4 +63,34 @@ class UserRoleController extends Controller
 
         return back()->with('success', 'User roles updated');
     }
+
+    /**
+     * Precheck before updating a user's role to ensure we don't remove the last Super Admin.
+     */
+    public function precheck(Request $request, User $user)
+    {
+        $role = $request->string('role');
+
+        // Determine current and new role sets (UI uses single select named 'role')
+        $currentRoles = $user->roles->pluck('name')->values()->all();
+        $newRoles = $role->isNotEmpty() ? [$role->toString()] : [];
+
+        $removingSuperAdmin = in_array('Super Admin', $currentRoles, true) && !in_array('Super Admin', $newRoles, true);
+        if ($removingSuperAdmin) {
+            $superAdminRole = \Spatie\Permission\Models\Role::where('name', 'Super Admin')->first();
+            $count = $superAdminRole ? $superAdminRole->users()->count() : 0;
+            if ($count <= 1) {
+                return response()->json([
+                    'ok' => false,
+                    'message' => 'Tidak dapat menghapus role Super Admin dari user ini karena akan menjadi tidak ada Super Admin yang tersisa.',
+                    'issues' => ['super_admin_remaining' => $count],
+                ]);
+            }
+        }
+
+        return response()->json([
+            'ok' => true,
+            'message' => 'Perubahan role dapat disimpan. Lanjutkan?',
+        ]);
+    }
 }

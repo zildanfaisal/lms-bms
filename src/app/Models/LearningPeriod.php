@@ -13,13 +13,14 @@ class LearningPeriod extends Model
     protected $table = 'learning_periods';
 
     protected $fillable = [
-        'code','name','starts_at','ends_at','is_locked',
+        'code','name','starts_at','ends_at','is_locked','is_active',
     ];
 
     protected $casts = [
         'starts_at' => 'date',
         'ends_at' => 'date',
         'is_locked' => 'boolean',
+        'is_active' => 'boolean',
     ];
 
     public function targets()

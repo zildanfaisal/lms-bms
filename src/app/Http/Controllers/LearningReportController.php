@@ -18,7 +18,7 @@ class LearningReportController extends Controller
 {
     public function index(Request $request, TargetResolver $resolver)
     {
-        $periodOptions = \App\Models\LearningPeriod::orderByDesc('starts_at')->get(['id','name']);
+    $periodOptions = \App\Models\LearningPeriod::where('is_active', true)->orderByDesc('starts_at')->get(['id','name']);
         $periodId = $request->get('period_id') ?? optional($this->currentPeriod())->id;
 
         // Optional hierarchy filters
@@ -202,7 +202,8 @@ class LearningReportController extends Controller
 
     protected function currentPeriod(): ?LearningPeriod
     {
-        return LearningPeriod::whereDate('starts_at', '<=', now())
+        return LearningPeriod::where('is_active', true)
+            ->whereDate('starts_at', '<=', now())
             ->whereDate('ends_at', '>=', now())
             ->first();
     }

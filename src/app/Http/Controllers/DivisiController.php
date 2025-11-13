@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Divisi;
 use Illuminate\Http\Request;
 use App\Models\Direktorat;
+use App\Models\Karyawan;
 
 class DivisiController extends Controller
 {
@@ -98,5 +99,25 @@ class DivisiController extends Controller
     {
         $divisis = \App\Models\Divisi::where('direktorat_id', $direktoratId)->orderBy('nama_divisi')->get(['id','nama_divisi']);
         return response()->json($divisis);
+    }
+
+    /**
+     * Precheck before deleting a divisi. Returns JSON.
+     */
+    public function precheckDelete(Divisi $divisi)
+    {
+        $unitCount = $divisi->units()->count();
+        $karyawanCount = Karyawan::where('divisi_id', $divisi->id)->count();
+        if ($unitCount > 0 || $karyawanCount > 0) {
+            $parts = [];
+            if ($unitCount > 0) $parts[] = $unitCount.' unit';
+            if ($karyawanCount > 0) $parts[] = $karyawanCount.' karyawan';
+            return response()->json([
+                'ok' => false,
+                'message' => 'Tidak dapat menghapus divisi karena terdapat '.implode(' dan ', $parts).'.',
+                'issues' => ['units' => $unitCount, 'karyawan' => $karyawanCount],
+            ]);
+        }
+        return response()->json(['ok' => true, 'message' => 'Divisi dapat dihapus. Lanjutkan?']);
     }
 }

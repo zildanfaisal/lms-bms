@@ -28,6 +28,9 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
+        // Flash success login message for SweetAlert
+        $request->session()->flash('success', 'Berhasil login');
+
         return redirect()->intended(route('dashboard', absolute: false));
     }
 
@@ -41,6 +44,9 @@ class AuthenticatedSessionController extends Controller
         $request->session()->invalidate();
 
         $request->session()->regenerateToken();
+
+        // Flash logout info message for SweetAlert
+        $request->session()->flash('info', 'Anda telah logout');
 
         return redirect('/');
     }

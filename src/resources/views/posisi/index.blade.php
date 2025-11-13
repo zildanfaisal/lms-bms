@@ -44,9 +44,9 @@
                                     @can('update posisi')
                                         <x-action-button type="edit" href="{{ route('posisi.edit', $d->id) }}" color="purple" />
                                     @endcan
-                                    @can('delete posisi')
-                                        <x-action-button type="delete" action="{{ route('posisi.destroy', $d->id) }}" color="red" confirm="Hapus posisi ini?" />
-                                    @endcan
+                    @can('delete posisi')
+                        <x-action-button type="delete" action="{{ route('posisi.destroy', $d->id) }}" color="red" confirm="Hapus posisi ini?" precheck="{{ route('posisi.precheck-delete', $d->id) }}" />
+                    @endcan
                                 </td>
                             </tr>
                             @else
@@ -93,7 +93,7 @@
                         </td>\
                         <td class="px-4 py-3 text-sm text-gray-700 flex gap-2">\
                             ${CAN_EDIT ? IS.renderEdit(`/posisi/${item.id}/edit`, 'text-purple-600') : ''}\
-                            ${CAN_DELETE ? IS.renderDelete(`/posisi/${item.id}`, 'Hapus posisi ini?', 'text-red-600') : ''}\
+                           ${CAN_DELETE ? IS.renderDelete(`/posisi/${item.id}`, 'Hapus posisi ini?', 'text-red-600', 'DELETE', `/posisi/${item.id}/precheck-delete`) : ''}\
                         </td>\
                     </tr>`).join('');
                 if(pagination) pagination.style.display = 'none';

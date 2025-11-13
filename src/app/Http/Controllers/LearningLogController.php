@@ -23,8 +23,15 @@ class LearningLogController extends Controller
         if (!$karyawan) {
             return view('learning.missing_karyawan');
         }
-        $periodOptions = \App\Models\LearningPeriod::orderByDesc('starts_at')->get(['id','name','starts_at','ends_at']);
-        $selectedPeriodId = $request->get('period_id') ?: optional($this->currentPeriod())->id;
+    $periodOptions = \App\Models\LearningPeriod::where('is_active', true)->orderByDesc('starts_at')->get(['id','name','starts_at','ends_at']);
+        $requestedPid = $request->get('period_id');
+        $selectedPeriodId = null;
+        if ($requestedPid) {
+            $selectedPeriodId = optional($periodOptions->firstWhere('id', (int)$requestedPid))->id;
+        }
+        if (!$selectedPeriodId) {
+            $selectedPeriodId = optional($this->currentPeriod())->id;
+        }
 
         $logs = LearningLog::with('platform')
             ->where('karyawan_id', $karyawan->id)
@@ -47,8 +54,8 @@ class LearningLogController extends Controller
             return view('learning.missing_karyawan');
         }
         $currentPeriod = $this->currentPeriod();
-        $periodOptions = \App\Models\LearningPeriod::orderByDesc('starts_at')->get(['id','name','starts_at','ends_at']);
-        $prefill = [
+    $periodOptions = \App\Models\LearningPeriod::where('is_active', true)->orderByDesc('starts_at')->get(['id','name','starts_at','ends_at']);
+    $prefill = [
             'platform_id' => $request->query('platform_id'),
             'title' => $request->query('title'),
             'learning_url' => $request->query('learning_url'),
@@ -57,7 +64,7 @@ class LearningLogController extends Controller
             'ended_at' => $request->query('ended_at') ?? now()->toDateString(),
             'duration_minutes' => $request->query('duration_minutes') ?? 60,
             'recommendation_id' => $request->query('recommendation_id'),
-            'period_id' => $request->query('period_id') ?: optional($currentPeriod)->id,
+            'period_id' => ($pid = $request->query('period_id')) && $periodOptions->firstWhere('id', (int)$pid) ? (int)$pid : optional($currentPeriod)->id,
         ];
         return view('learning.logs.create', [
             'prefill' => $prefill,
@@ -74,7 +81,7 @@ class LearningLogController extends Controller
 
         $data = $request->all();
         Validator::make($data, [
-            'period_id' => ['required','exists:learning_periods,id'],
+            'period_id' => ['required', Rule::exists('learning_periods','id')->where('is_active', true)],
             'platform_id' => ['required','exists:learning_platforms,id'],
             'title' => ['required','string','max:255'],
             'description' => ['nullable','string'],
@@ -109,7 +116,7 @@ class LearningLogController extends Controller
             return redirect()->back()->withInput()->with('error', 'Gagal menyimpan pembelajaran: '.$e->getMessage());
         }
 
-    return redirect()->route('learning.logs.index', ['period_id' => $data['period_id']])->with('status', 'Learning log created as draft.');
+    return redirect()->route('learning.logs.index', ['period_id' => $data['period_id']])->with('success', 'Learning log created as draft.');
     }
 
     public function update(Request $request, LearningLog $log)
@@ -118,7 +125,7 @@ class LearningLogController extends Controller
 
         $data = $request->all();
         Validator::make($data, [
-            'period_id' => ['required','exists:learning_periods,id'],
+            'period_id' => ['required', Rule::exists('learning_periods','id')->where('is_active', true)],
             'platform_id' => ['required','exists:learning_platforms,id'],
             'title' => ['required','string','max:255'],
             'description' => ['nullable','string'],
@@ -146,7 +153,7 @@ class LearningLogController extends Controller
             'recommendation_id' => $data['recommendation_id'] ?? null,
         ]);
 
-        return redirect()->back()->with('status', 'Learning log updated.');
+    return redirect()->back()->with('success', 'Learning log updated.');
     }
 
     public function submit(Request $request, LearningLog $log)
@@ -161,7 +168,7 @@ class LearningLogController extends Controller
             'action' => 'submit',
             'meta' => null,
         ]);
-        return redirect()->back()->with('status', 'Learning log submitted for approval.');
+    return redirect()->back()->with('success', 'Learning log submitted for approval.');
     }
 
     public function show(LearningLog $log)
@@ -173,7 +180,7 @@ class LearningLogController extends Controller
     protected function currentPeriod(): ?LearningPeriod
     {
         $today = Carbon::today();
-        return LearningPeriod::where('starts_at', '<=', $today)
+        return LearningPeriod::where('is_active', true)->where('starts_at', '<=', $today)
             ->where('ends_at', '>=', $today)
             ->first();
     }

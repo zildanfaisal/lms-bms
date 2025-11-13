@@ -98,11 +98,10 @@
                                     </x-dropdown-link>
 
                                     <!-- Authentication -->
-                                    <form method="POST" action="{{ route('logout') }}">
+                                    <form method="POST" action="{{ route('logout') }}" data-logout-confirm>
                                         @csrf
-
-                                        <x-dropdown-link :href="route('logout')"
-                                                onclick="event.preventDefault(); this.closest('form').submit();">
+                                       <x-dropdown-link :href="route('logout')"
+                                            onclick="event.preventDefault(); this.closest('form').requestSubmit();">
                                             {{ __('Log Out') }}
                                         </x-dropdown-link>
                                     </form>
@@ -129,6 +128,17 @@
     @else
         @vite(['resources/js/app.js'])
     @endif
+
+    {{-- Flash messages injection for SweetAlert2 --}}
+    <script>
+        window.FLASH_MESSAGES = {
+            @if(session('status')) status: @json(session('status')), @endif
+            @if(session('success')) success: @json(session('success')), @endif
+            @if(session('error')) error: @json(session('error')), @endif
+            @if(session('warning')) warning: @json(session('warning')), @endif
+            @if(session('info')) info: @json(session('info')), @endif
+        };
+    </script>
 
     {{-- Alpine: simple CDN fallback if Alpine isn't bundled in app.js (keeps mobile toggle working) --}}
     <script>

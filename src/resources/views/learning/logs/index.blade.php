@@ -7,8 +7,8 @@
 
 @section('content')
     <div class="bg-white shadow-sm sm:rounded-lg p-6">
-      @if (session('status'))
-        <div class="mb-4 p-3 rounded bg-green-100 text-green-800">{{ session('status') }}</div>
+      @if (session('success'))
+        <div class="mb-4 p-3 rounded bg-green-100 text-green-800">{{ session('success') }}</div>
       @endif
       @if (session('error'))
         <div class="mb-4 p-3 rounded bg-red-100 text-red-800">{{ session('error') }}</div>
@@ -55,7 +55,7 @@
                 <a href="{{ route('learning.logs.show',$log) }}" class="text-blue-600">View</a>
                 @if($log->status === 'draft')
                   @can('submit learning log')
-                  <form method="POST" action="{{ route('learning.logs.submit',$log) }}" class="inline">
+                  <form method="POST" action="{{ route('learning.logs.submit',$log) }}" class="inline" data-confirm="Kirim log untuk persetujuan?">
                     @csrf
                     <button class="text-green-700">Submit</button>
                   </form>

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Unit;
 use Illuminate\Http\Request;
 use App\Models\Divisi;
+use App\Models\Karyawan;
 
 class UnitController extends Controller
 {
@@ -73,6 +74,11 @@ class UnitController extends Controller
 
     public function destroy(Unit $unit)
     {
+        $karyawanCount = Karyawan::where('unit_id', $unit->id)->count();
+        if ($karyawanCount > 0) {
+            return redirect()->route('unit.index')->with('error', "Tidak dapat menghapus unit karena terdapat {$karyawanCount} karyawan.");
+        }
+
         $unit->delete();
         return redirect()->route('unit.index')->with('success','Unit berhasil dihapus.');
     }
@@ -84,5 +90,21 @@ class UnitController extends Controller
     {
         $units = \App\Models\Unit::where('divisi_id', $divisiId)->orderBy('nama_unit')->get(['id','nama_unit']);
         return response()->json($units);
+    }
+
+    /**
+     * Precheck before deleting a unit. Returns JSON.
+     */
+    public function precheckDelete(Unit $unit)
+    {
+        $karyawanCount = Karyawan::where('unit_id', $unit->id)->count();
+        if ($karyawanCount > 0) {
+            return response()->json([
+                'ok' => false,
+                'message' => "Tidak dapat menghapus unit karena terdapat {$karyawanCount} karyawan.",
+                'issues' => ['karyawan' => $karyawanCount],
+            ]);
+        }
+        return response()->json(['ok' => true, 'message' => 'Unit dapat dihapus. Lanjutkan?']);
     }
 }

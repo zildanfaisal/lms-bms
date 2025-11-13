@@ -81,6 +81,11 @@
                     </button>
 
                     <ul x-cloak x-show="open" x-transition class="mt-2 space-y-1 ps-10" style="display:none;">
+                        @role('Super Admin')
+                        <li>
+                            <a href="{{ route('learning.periods.index') }}" class="block px-3 py-2 rounded-lg hover:bg-white/10 text-sm">Manajemen Periode</a>
+                        </li>
+                        @endrole
                         <li>
                             <a href="{{ route('learning.plans.index') }}" class="block px-3 py-2 rounded-lg hover:bg-white/10 text-sm">Plan Recommendations</a>
                         </li>

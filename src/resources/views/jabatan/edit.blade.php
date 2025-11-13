@@ -18,7 +18,7 @@
             </div>
         @endif
 
-        <form action="{{ route('jabatan.update', $jabatan->id) }}" method="POST">
+    <form action="{{ route('jabatan.update', $jabatan->id) }}" method="POST" data-update-confirm="Simpan perubahan jabatan?">
             @csrf
             @method('PUT')
             <div class="space-y-4">

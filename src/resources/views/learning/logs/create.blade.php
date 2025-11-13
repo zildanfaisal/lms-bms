@@ -14,7 +14,7 @@
       <div class="mb-4 p-3 rounded bg-red-100 text-red-800">{{ session('error') }}</div>
     @endif
 
-    <form method="POST" action="{{ route('learning.logs.store') }}" class="mb-6">
+  <form method="POST" action="{{ route('learning.logs.store') }}" class="mb-6" data-confirm="Simpan draft pembelajaran?">
       @csrf
       <div class="grid grid-cols-1 md:grid-cols-6 gap-4 items-end">
         <div>

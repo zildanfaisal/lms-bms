@@ -24,8 +24,8 @@ class LearningPlatformController extends Controller
         ]);
         $data['created_by'] = $request->user()->id;
         $data['is_active'] = $data['is_active'] ?? true;
-        LearningPlatform::create($data);
-        return back()->with('status', 'Platform created');
+    LearningPlatform::create($data);
+    return back()->with('success', 'Platform created');
     }
 
     public function update(Request $request, LearningPlatform $platform)
@@ -37,13 +37,13 @@ class LearningPlatformController extends Controller
             'description' => ['nullable','string'],
             'is_active' => ['nullable','boolean'],
         ]);
-        $platform->update($data);
-        return back()->with('status', 'Platform updated');
+    $platform->update($data);
+    return back()->with('success', 'Platform updated');
     }
 
     public function destroy(LearningPlatform $platform)
     {
-        $platform->delete();
-        return back()->with('status', 'Platform deleted');
+    $platform->delete();
+    return back()->with('success', 'Platform deleted');
     }
 }

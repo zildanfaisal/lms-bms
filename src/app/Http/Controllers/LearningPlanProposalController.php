@@ -53,7 +53,7 @@ class LearningPlanProposalController extends Controller
             foreach ($units as $u) { $scopeNames['unit-'.$u->id] = $u->nama_unit; }
         }
 
-        $periodOptions = \App\Models\LearningPeriod::orderByDesc('starts_at')->get(['id','name']);
+    $periodOptions = \App\Models\LearningPeriod::where('is_active', true)->orderByDesc('starts_at')->get(['id','name']);
         $allowedScopeTypes = $user?->hasRole('Super Admin') ? ['direktorat','divisi','unit'] : ['unit'];
 
         return view('learning.plans.index', [
@@ -71,7 +71,7 @@ class LearningPlanProposalController extends Controller
 
     public function create()
     {
-        $periods = LearningPeriod::orderByDesc('starts_at')->get();
+    $periods = LearningPeriod::where('is_active', true)->orderByDesc('starts_at')->get();
         $direktorats = Direktorat::orderBy('nama_direktorat')->get();
         $user = request()->user();
         $divisiId = $user?->karyawan?->divisi_id;
@@ -84,7 +84,7 @@ class LearningPlanProposalController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'period_id' => ['required','exists:learning_periods,id'],
+            'period_id' => ['required', \Illuminate\Validation\Rule::exists('learning_periods','id')->where('is_active', true)],
             'scope_type' => ['required','in:direktorat,divisi,unit'],
             'scope_id' => ['required','integer'],
             'only_subordinate_jabatans' => ['nullable','boolean'],
@@ -126,13 +126,13 @@ class LearningPlanProposalController extends Controller
             ]);
         }
 
-        return redirect()->route('learning.plans.index', $proposal)->with('status','Draft disimpan.');
+    return redirect()->route('learning.plans.index')->with('success','Draft berhasil dibuat.');
     }
 
     public function edit(LearningPlanProposal $proposal)
     {
         $this->authorizeOwner($proposal);
-        $periods = LearningPeriod::orderByDesc('starts_at')->get();
+    $periods = LearningPeriod::where('is_active', true)->orderByDesc('starts_at')->get();
         $direktorats = Direktorat::orderBy('nama_direktorat')->get();
         $proposal->load('recommendations');
         $user = request()->user();
@@ -169,7 +169,7 @@ class LearningPlanProposalController extends Controller
             return back()->with('error','Hanya draft yang bisa diubah.');
         }
         $data = $request->validate([
-            'period_id' => ['required','exists:learning_periods,id'],
+            'period_id' => ['required', \Illuminate\Validation\Rule::exists('learning_periods','id')->where('is_active', true)],
             'scope_type' => ['required','in:direktorat,divisi,unit'],
             'scope_id' => ['required','integer'],
             'only_subordinate_jabatans' => ['nullable','boolean'],
@@ -211,7 +211,7 @@ class LearningPlanProposalController extends Controller
             ]);
         }
 
-        return back()->with('status','Perubahan disimpan.');
+    return redirect()->route('learning.plans.index')->with('success','Perubahan usulan disimpan.');
     }
 
     public function submit(LearningPlanProposal $proposal)
@@ -222,7 +222,7 @@ class LearningPlanProposalController extends Controller
         }
         $proposal->status = 'submitted';
         $proposal->save();
-        return redirect()->route('learning.plans.index')->with('status','Usulan dikirim ke HR.');
+    return redirect()->route('learning.plans.index')->with('success','Usulan berhasil dikirim ke HR.');
     }
 
     protected function authorizeOwner(LearningPlanProposal $proposal): void

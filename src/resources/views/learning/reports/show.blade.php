@@ -28,7 +28,7 @@
         <form method="GET" class="flex items-center gap-2">
           <select name="period_id" class="border rounded p-1 text-xs">
             <option value="">(Aktif)</option>
-            @foreach(\App\Models\LearningPeriod::orderByDesc('starts_at')->get(['id','name']) as $p)
+            @foreach(\App\Models\LearningPeriod::where('is_active', true)->orderByDesc('starts_at')->get(['id','name']) as $p)
               <option value="{{ $p->id }}" @selected(request('period_id') == $p->id)>{{ $p->name }}</option>
             @endforeach
           </select>

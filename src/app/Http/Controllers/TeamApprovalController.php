@@ -68,7 +68,7 @@ class TeamApprovalController extends Controller
             'meta' => null,
         ]);
 
-        return redirect()->back()->with('status', 'Learning log approved.');
+    return redirect()->back()->with('success', 'Learning log approved.');
     }
 
     public function reject(Request $request, LearningLog $log, ApproverResolver $resolver)
@@ -102,6 +102,6 @@ class TeamApprovalController extends Controller
             'meta' => ['reason' => $data['reason']],
         ]);
 
-        return redirect()->back()->with('status', 'Learning log rejected.');
+    return redirect()->back()->with('success', 'Learning log rejected.');
     }
 }

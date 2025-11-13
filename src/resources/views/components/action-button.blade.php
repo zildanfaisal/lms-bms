@@ -7,7 +7,8 @@
     'class' => '',
     'color' => null,
     'confirm' => null,
-    'method' => 'DELETE'
+    'method' => 'DELETE',
+    'precheck' => null,
 ])
 
 @php
@@ -32,7 +33,7 @@
         </svg>
     </a>
 @elseif($type === 'delete')
-    <form action="{{ $action }}" method="POST" @if($id) id="{{ $id }}" @endif @if($confirm) data-confirm="{{ $confirm }}" @endif onsubmit="event.stopPropagation(); return confirm(this.dataset.confirm || 'Hapus data ini?');" class="inline">
+    <form action="{{ $action }}" method="POST" @if($id) id="{{ $id }}" @endif @if($confirm) data-confirm="{{ $confirm }}" @endif @if($precheck) data-precheck="{{ $precheck }}" @endif class="inline">
         @csrf
         @method($method)
     <button type="submit" class="{{ $finalClass }}" aria-label="delete">

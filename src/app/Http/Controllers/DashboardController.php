@@ -11,14 +11,15 @@ class DashboardController extends Controller
         $user = request()->user();
         $karyawan = $user?->karyawan;
         $today = \Carbon\Carbon::today();
-        $periodOptions = \App\Models\LearningPeriod::orderByDesc('starts_at')->get(['id','name','starts_at','ends_at']);
+    $periodOptions = \App\Models\LearningPeriod::where('is_active', true)->orderByDesc('starts_at')->get(['id','name','starts_at','ends_at']);
         $selectedPeriodId = (int) request()->get('period_id');
         $period = null;
         if ($selectedPeriodId) {
             $period = $periodOptions->firstWhere('id', $selectedPeriodId);
         }
         if (!$period) {
-            $period = \App\Models\LearningPeriod::where('starts_at', '<=', $today)
+            $period = \App\Models\LearningPeriod::where('is_active', true)
+                ->where('starts_at', '<=', $today)
                 ->where('ends_at', '>=', $today)
                 ->first();
         }

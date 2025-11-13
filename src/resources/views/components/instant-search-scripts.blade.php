@@ -35,11 +35,11 @@
         `;
     };
 
-    ns.renderDelete = function(action, confirmMsg='Hapus data ini?', colorOrClass='red', method='DELETE'){
+    ns.renderDelete = function(action, confirmMsg='Hapus data ini?', colorOrClass='red', method='DELETE', precheckUrl=null){
         const cls = _clsFrom(colorOrClass);
         // use data-confirm attribute to avoid nested quoting issues and render trash icon like component
         return `
-            <form action="${action}" method="POST" data-confirm="${confirmMsg}" onsubmit="event.stopPropagation(); return confirm(this.dataset.confirm || '${confirmMsg}');">
+            <form action="${action}" method="POST" data-confirm="${confirmMsg}" ${precheckUrl ? `data-precheck="${precheckUrl}"` : ''} class="inline" onsubmit="event.stopPropagation();">
                 <input type="hidden" name="_token" value="${ns._csrf}">
                 <input type="hidden" name="_method" value="${method}">
                 <button type="submit" class="${cls}" aria-label="delete">

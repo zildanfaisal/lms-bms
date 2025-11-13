@@ -8,8 +8,8 @@
 
 @section('content')
   <div class="bg-white rounded-xl shadow p-4">
-    @if (session('status'))
-      <div class="mb-4 p-3 rounded bg-green-100 text-green-800">{{ session('status') }}</div>
+    @if (session('success'))
+      <div class="mb-4 p-3 rounded bg-green-100 text-green-800">{{ session('success') }}</div>
     @endif
     @if (session('error'))
       <div class="mb-4 p-3 rounded bg-red-100 text-red-800">{{ session('error') }}</div>
@@ -96,7 +96,7 @@
               <td class="p-2 space-x-2">
                 @if($p->status === 'draft')
                   <a href="{{ route('learning.plans.edit',$p) }}" class="text-purple-600">Edit</a>
-                  <form action="{{ route('learning.plans.submit',$p) }}" method="POST" class="inline" onsubmit="return confirm('Kirim usulan ke HR?')">
+                  <form action="{{ route('learning.plans.submit',$p) }}" method="POST" class="inline" data-confirm="Kirim usulan ke HR?">
                     @csrf
                     <button class="text-green-700">Submit</button>
                   </form>

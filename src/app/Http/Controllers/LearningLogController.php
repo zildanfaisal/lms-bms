@@ -39,10 +39,54 @@ class LearningLogController extends Controller
             ->orderByDesc('created_at')
             ->paginate(20);
 
+        // Recommendations for the user in the selected (or current) period
+        $recommendedItems = [];
+        $platformMap = [];
+        $periodId = $selectedPeriodId;
+        if ($karyawan && $periodId) {
+            $recResolver = app(\App\Services\RecommendationResolver::class);
+            $recommendedItems = $recResolver->for($karyawan, (int)$periodId);
+            // Mark done/pending based on existing logs
+            $autoDoneIds = \App\Models\LearningLog::query()
+                ->where('karyawan_id', $karyawan->id)
+                ->where('period_id', $periodId)
+                ->where('status', 'approved')
+                ->whereNotNull('recommendation_id')
+                ->pluck('recommendation_id')
+                ->unique()
+                ->all();
+            $pendingIds = \App\Models\LearningLog::query()
+                ->where('karyawan_id', $karyawan->id)
+                ->where('period_id', $periodId)
+                ->where('status', 'pending')
+                ->whereNotNull('recommendation_id')
+                ->pluck('recommendation_id')
+                ->unique()
+                ->all();
+            if (!empty($recommendedItems)) {
+                $recommendedItems = array_map(function($it) use ($autoDoneIds, $pendingIds){
+                    $id = $it['id'] ?? null;
+                    if ($id && in_array($id, $autoDoneIds)) {
+                        $it['done'] = true;
+                        $it['done_source'] = 'auto';
+                    } elseif ($id && in_array($id, $pendingIds)) {
+                        $it['pending'] = true;
+                    }
+                    return $it;
+                }, $recommendedItems);
+            }
+            $platformIds = collect($recommendedItems)->pluck('platform_id')->filter()->unique()->values();
+            if ($platformIds->isNotEmpty()) {
+                $platformMap = \App\Models\LearningPlatform::whereIn('id', $platformIds)->pluck('name','id')->toArray();
+            }
+        }
+
         return view('learning.logs.index', [
             'logs' => $logs,
             'periodOptions' => $periodOptions,
             'selectedPeriodId' => $selectedPeriodId,
+            'recommendedItems' => $recommendedItems,
+            'platformMap' => $platformMap,
         ]);
     }
 

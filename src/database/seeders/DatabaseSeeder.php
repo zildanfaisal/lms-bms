@@ -23,6 +23,7 @@ class DatabaseSeeder extends Seeder
             JabatanSeeder::class,
             PosisiSeeder::class,
             RolesAndPermissionsSeeder::class,
+            SuperAdminSeeder::class,
             // LearningPeriodsSeeder::class,
             // LearningPlatformsSeeder::class,
             // KaryawanSeeder::class,
